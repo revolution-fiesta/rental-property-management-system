@@ -1,0 +1,27 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE rooms (
+    id SERIAL PRIMARY KEY,
+    type VARCHAR(20) NOT NULL,
+    quantity INTEGER NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    is_deleted BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    wechat_openid VARCHAR(100) UNIQUE,
+    phone VARCHAR(20) NOT NULL,
+    signed_up_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE passwords (
+    id SERIAL PRIMARY KEY,
+    room_id INTEGER REFERENCES rooms(id) ON DELETE CASCADE,
+    password VARCHAR(20) NOT NULL,
+    is_temp BOOLEAN DEFAULT true,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

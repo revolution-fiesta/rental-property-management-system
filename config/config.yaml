@@ -1,0 +1,20 @@
+server:
+  port: "8080"
+  env: "development"
+
+database:
+  host: "mysql"
+  port: "5433"
+  user: "root"
+  password: "270153"
+  name: "rental"
+
+wechat:
+  app_id: "YOUR_WECHAT_APPID"
+  mch_id: "YOUR_MCH_ID"
+  api_key: "YOUR_API_KEY"
+
+esign:
+  api_url: "https://openapi.esign.cn"
+  app_id: "YOUR_ESIGN_APPID"
+  secret: "YOUR_ESIGN_SECRET"
