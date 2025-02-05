@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"rental-property-management-system/internal/config"
 	"rental-property-management-system/internal/controllers"
 	"rental-property-management-system/internal/database"
@@ -14,6 +15,7 @@ func main() {
 
 	// 初始化数据库
 	database.ConnectDB()
+	fmt.Println("success")
 	defer database.DisconnectDB() // 在程序结束时关闭数据库连接
 
 	// 迁移数据库模型

@@ -4,11 +4,10 @@ server:
 
 database:
   host: "localhost"
-  port: "5432"
+  port: "5433"
   user: "postgres"
   password: "270153"
-  name: "rental"
-
+  name: "postgres"
 wechat:
   app_id: "YOUR_WECHAT_APPID"
   mch_id: "YOUR_MCH_ID"
