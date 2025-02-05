@@ -28,6 +28,16 @@ func ConnectDB() {
 
 	DB = db
 }
+func DisconnectDB() {
+    sqlDB, err := DB.DB()
+    if err != nil {
+        panic("Failed to get database instance: " + err.Error())
+    }
+    err = sqlDB.Close()
+    if err != nil {
+        panic("Failed to close database connection: " + err.Error())
+    }
+}
 
 func MigrateModels() {
 	err := DB.AutoMigrate(

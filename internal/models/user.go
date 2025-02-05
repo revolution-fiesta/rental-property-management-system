@@ -1,13 +1,9 @@
 package models
 
-import (
-	"time"
-	"gorm.io/gorm"
-)
 
 type User struct {
-	gorm.Model
-	WechatOpenID string    `gorm:"type:varchar(100);uniqueIndex"`
-	Phone        string    `gorm:"type:varchar(20);not null"`
-	SignedUpAt   time.Time `gorm:"default:CURRENT_TIMESTAMP"`
+	ID           uint   `json:"id"`
+	Username     string `json:"username"`
+	PasswordHash string `json:"password_hash"`
+	Email        string `json:"email"`
 }

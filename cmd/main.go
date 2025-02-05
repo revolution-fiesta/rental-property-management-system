@@ -1,13 +1,30 @@
 package main
 
 import (
-	
+	"rental-property-management-system/internal/config"
+	"rental-property-management-system/internal/controllers"
+	"rental-property-management-system/internal/database"
+	//"rental-property-management-system/internal/models"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	
-	
-	
-	
-	
+	// 初始化配置
+	config.LoadConfig()
+
+	// 初始化数据库
+	database.ConnectDB()
+	defer database.DisconnectDB() // 在程序结束时关闭数据库连接
+
+	// 迁移数据库模型
+	database.MigrateModels()
+
+	// 初始化房间数据
+	controllers.InitRoomData()
+
+	// 创建Gin实例
+	r := gin.Default()
+
+	// 启动服务器
+	r.Run(":8080")
 }
