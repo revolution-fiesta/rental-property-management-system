@@ -1,4 +1,4 @@
-module rental_system
+module rental-property-management-system
 
 go 1.22.3
 

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"rental_system/internal/config"
-	"rental_system/internal/models"
+	"rental-property-management-system/internal/config"
+	"rental-property-management-system/internal/models"
 )
 
 var DB *gorm.DB

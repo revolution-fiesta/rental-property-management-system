@@ -3,7 +3,7 @@ server:
   env: "development"
 
 database:
-  host: "mysql"
+  host: "postgres"
   port: "5433"
   user: "root"
   password: "270153"

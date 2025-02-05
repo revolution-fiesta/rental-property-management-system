@@ -4,9 +4,8 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
-	"rental_system/internal/database"
-	"rental_system/internal/models"
-
+	"rental-property-management-system/internal/database"
+	"rental-property-management-system/internal/models"
 	"github.com/gin-gonic/gin"
 )
 
