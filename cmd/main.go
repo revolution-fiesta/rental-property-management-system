@@ -7,9 +7,13 @@ import (
 	"rental-property-management-system/internal/database"
 	//"rental-property-management-system/internal/models"
 	"github.com/gin-gonic/gin"
+	"rental-property-management-system/api"
 )
 
+
+
 func main() {
+  
 	// 初始化配置
 	config.LoadConfig()
 
@@ -28,5 +32,9 @@ func main() {
 	r := gin.Default()
 
 	// 启动服务器
+	r.POST("login",api.Login)
+	r.POST("/register", api.Register)
 	r.Run(":8080")
+	
 }
+
