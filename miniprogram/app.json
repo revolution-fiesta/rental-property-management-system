@@ -1,7 +1,7 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/Info/Info"
+    "pages/info/info"
   ],
   "window": {
     "navigationBarTextStyle": "black",
@@ -23,11 +23,13 @@
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents",
   "tabBar": {"list": [{
-    "pagePath": "pages/Info/Info",
-    "selectedIconPath": ""
-
-  },{
     "pagePath": "pages/index/index",
-    "selectedIconPath": ""
+    "iconPath": "images/tabbar/property.png",
+    "selectedIconPath": "images/tabbar/property_selected.png"
+  },{
+    "pagePath": "pages/info/info",
+    "iconPath": "images/tabbar/info.png",
+    "selectedIconPath": "images/tabbar/info_selected.png"
+
   }]}
 }
