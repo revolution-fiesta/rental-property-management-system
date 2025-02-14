@@ -1,13 +1,17 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- 创建 rooms 表
 CREATE TABLE rooms (
-    id SERIAL PRIMARY KEY,
-    type VARCHAR(20) NOT NULL,
-    quantity INTEGER NOT NULL,
-    price DECIMAL(10,2) NOT NULL,
-    is_deleted BOOLEAN DEFAULT false,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id SERIAL PRIMARY KEY,                         -- 主键，自动递增
+    type VARCHAR(20) NOT NULL,                     -- 房间类型
+    quantity INTEGER NOT NULL,                     -- 房间数量
+    price DECIMAL(10, 2) NOT NULL,                 -- 房间价格
+    is_deleted BOOLEAN DEFAULT false,              -- 是否已租，默认为 false
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认为当前时间
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 更新时间，默认为当前时间
+    tags VARCHAR(255),                             -- 房间标签，如方向、是否精修、是否近地铁等
+    area DECIMAL(10, 2) NOT NULL                   -- 房间占地面积，单位平方米
 );
+
 
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,                -- 对应 User.ID，使用 SERIAL 类型自增
