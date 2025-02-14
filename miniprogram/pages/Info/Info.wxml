@@ -1,0 +1,6 @@
+
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="container">
+    private info
+  </view>
+</scroll-view>

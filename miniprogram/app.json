@@ -1,0 +1,27 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/info/info"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "WeChat",
+    "navigationBarTextStyle": "black",
+    "navigationStyle": "default"
+  },
+
+  "componentFramework": "glass-easel",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "tabBar": {"list": [{
+    "pagePath": "pages/index/index",
+    "iconPath": "images/tabbar/property.png",
+    "selectedIconPath": "images/tabbar/property_selected.png"
+  },{
+    "pagePath": "pages/info/info",
+    "iconPath": "images/tabbar/info.png",
+    "selectedIconPath": "images/tabbar/info_selected.png"
+
+  }]}
+}

@@ -1,0 +1,11 @@
+<!--index.wxml-->
+
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="search-container">
+    <input class="search-input" placeholder="搜索房源" bindinput="onSearchInput" />
+  </view>
+
+  <PropertyCard/>
+
+
+</scroll-view>
