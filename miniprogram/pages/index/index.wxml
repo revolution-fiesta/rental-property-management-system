@@ -1,7 +1,27 @@
 <!--index.wxml-->
-<navigation-bar title="租房" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+
 <scroll-view class="scrollarea" scroll-y type="list">
-  <view class="container">
-    
+  <view class="search-container">
+    <input class="search-input" placeholder="搜索房源" bindinput="onSearchInput" />
   </view>
+
+  <view class="card">
+    <image class="card-image" src="/images/houses/house_1.png" mode="aspectFill"></image>
+    <view class="card-content">
+      <view class="card-header">
+        <view class="card-price">6300元/月</view>
+        <view class="card-actions">
+          <view class="action-btn">随时看</view>
+          <view class="action-btn">房源新</view>
+        </view>
+      </view>
+      <view class="card-title">贝丽花园 3室2厅 南</view>
+      <view class="card-info">3房2厅/110㎡/龙华 高山街道</view>
+    </view>
+  </view>
+
+
+
+
+
 </scroll-view>

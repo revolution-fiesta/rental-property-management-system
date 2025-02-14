@@ -4,7 +4,104 @@ page {
   display: flex;
   flex-direction: column;
 }
+
 .scrollarea {
   flex: 1;
   overflow-y: hidden;
+}
+
+/* search bar */
+/* 搜索框样式 */
+.search-container {
+  padding: 10rpx 20rpx;  /* 设置左右内边距，增加间距 */
+  background-color: #E8F7F7;  /* 背景色 */
+  border-radius: 50rpx;  /* 圆角 */
+  margin-top: 10rpx;  /* 上边距，避免靠得太近 */
+}
+
+.search-input {
+  width: 100%;  /* 填满父容器宽度 */
+  padding: 10rpx 20rpx;  /* 输入框内边距 */
+  background-color: #FFFFFF;  /* 背景白色 */
+  border: none;  /* 去掉边框 */
+  border-radius: 50rpx;  /* 圆角 */
+  font-size: 28rpx;  /* 字体大小 */
+  color: #A3A3A3;  /* 输入框文字颜色 */
+  outline: none;  /* 去除聚焦时的边框 */
+}
+
+.search-input::placeholder {
+  color: #A3A3A3;  /* 占位符颜色 */
+}
+
+.search-icon {
+  position: absolute;
+  left: 15rpx;  /* 图标位置 */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20rpx;
+  height: 20rpx;
+  background: url('/images/search-icon.png') no-repeat center center;
+  background-size: contain;
+  pointer-events: none;  /* 禁用图标的点击事件 */
+}
+
+
+/* Card */
+.card {
+  display: flex;
+  width: 100%;
+  background-color: #fff;
+  border-radius: 10rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.1);
+}
+
+.card-image {
+  width: 160rpx;  /* 设置图片宽度 */
+  height: 160rpx; /* 设置图片高度 */
+  object-fit: cover;
+  border-radius: 8rpx;  /* 图片圆角 */
+}
+
+.card-content {
+  flex: 1;  /* 使内容区填满剩余空间 */
+  padding: 10rpx 15rpx;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-price {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #f00;
+}
+
+.card-actions {
+  display: flex;
+}
+
+.action-btn {
+  padding: 4rpx 10rpx;
+  background-color: #f7f7f7;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  color: #333;
+  margin-left: 10rpx;
+}
+
+.card-title {
+  font-size: 28rpx;
+  margin-top: 8rpx;
+  color: #333;
+}
+
+.card-info {
+  font-size: 24rpx;
+  color: #777;
+  margin-top: 4rpx;
 }
