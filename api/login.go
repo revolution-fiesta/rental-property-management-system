@@ -1,14 +1,44 @@
 package api
 
 import (
-   
-    "net/http"
-    "rental-property-management-system/internal/database"
-    "rental-property-management-system/internal/models"
-    
-    "github.com/gin-gonic/gin"
+	"fmt"
+	"net/http"
+	"rental-property-management-system/internal/database"
+	"rental-property-management-system/internal/models"
+	"rental-property-management-system/middleware"
+	"time"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/argon2"
 )
 
+func verifyPassword(storedHash, password string) bool {
+    salt := []byte("some_random_salt") // 必须使用相同的盐值
+    hash := argon2.IDKey([]byte(password), salt, 1, 64*1024, 4, 32)
+    return fmt.Sprintf("%x", hash) == storedHash
+}
+// 生成 token 的例子
+func GenerateToken(username, role string) (string, error) {
+	// 创建 token
+	claims := jwt.MapClaims{
+		"username": username,
+		"role":     role,
+		"exp":      time.Now().Add(time.Hour * 72).Unix(), // token 过期时间（设置为 72 小时后过期）
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// 使用密钥生成 token
+	jwtSecret := []byte(middleware.GenerateRandomKey())
+	tokenString, err := token.SignedString(jwtSecret)
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
+// 登录接口
 func Login(c *gin.Context) {
     var loginData struct {
         Username string `json:"username"`
@@ -33,10 +63,14 @@ func Login(c *gin.Context) {
     }
 
     // 生成JWT token
-    token := "your-generated-jwt-token" 
-
+    token ,err:=  GenerateToken(user.Username,user.Role)
+    if err!= nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+        return
+    }
     c.JSON(http.StatusOK, gin.H{
         "message": "Login successful",
         "token":   token,
+        "role":    user.Role, // 返回用户角色，后续可以根据角色做权限验证
     })
 }

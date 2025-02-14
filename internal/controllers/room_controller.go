@@ -67,8 +67,18 @@ func selectRoom(c *gin.Context) {
 		"room":    room,
 	})
 }
-// 更新房间的信息
+// 管理员更新房间的信息
 func UpdateRoomInfo(c *gin.Context) {
+	// 通过中间件获取管理员权限
+	user, _ := c.Get("user") // 获取用户信息
+
+	// 确认用户为管理员
+	if user == nil || user.(*models.User).Role != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have admin privileges"})
+		return
+	}
+
+	// 定义请求体结构
 	var request struct {
 		RoomID    uint     `json:"room_id" binding:"required"`
 		Type      *string  `json:"type"`
