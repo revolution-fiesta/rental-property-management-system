@@ -109,7 +109,7 @@ func UpdateRoomInfo(c *gin.Context) {
 		return
 	}
 
-	// 如果房间存在，更新房间信息
+	// 如果房间存在，则更新房间信息
 	if request.Type != nil {
 		room.Type = models.RoomType(*request.Type)
 	}

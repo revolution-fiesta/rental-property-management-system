@@ -19,5 +19,5 @@ type Room struct {
 	Price     float64  `gorm:"type:decimal(10,2);not null"`
 	IsDeleted bool     `gorm:"default:false"`
 	Tags      string   `gorm:"type:varchar(255)"`  // 标签，最多255个字符
-	Area      float64  `gorm:"type:decimal(10,2);not null"` // 占地面积，假设单位是平方米
+	Area      float64  `gorm:"type:decimal(10,2);not null"` // 占地面积，单位是平方米
 }

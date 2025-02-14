@@ -9,7 +9,7 @@ CREATE TABLE rooms (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间，默认为当前时间
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 更新时间，默认为当前时间
     tags VARCHAR(255),                             -- 房间标签，如方向、是否精修、是否近地铁等
-    area DECIMAL(10, 2) NOT NULL                   -- 房间占地面积，单位平方米
+    area DECIMAL(10, 2) NOT NULL                   -- 房间占地面积(单位平方米)
 );
 
 
