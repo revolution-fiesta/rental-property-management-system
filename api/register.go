@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"rental-property-management-system/internal/database"
 	"rental-property-management-system/internal/models"
-	"rental-property-management-system/middleware"
+	//"rental-property-management-system/middleware"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/argon2"
@@ -60,11 +60,20 @@ func Register(c *gin.Context) {
 }
 // 管理员注册函数
 func RegisterAdmin(c *gin.Context) {
-	var request struct {
-		Username string `json:"username" binding:"required"`
-		Password string `json:"password" binding:"required"`
-		Email    string `json:"email" binding:"required"`
+    // 通过中间件获取管理员权限
+	user, _ := c.Get("user") // 获取用户信息
+
+	// 确认用户为管理员
+	if user == nil || user.(*models.User).Role != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have admin privileges"})
+		return
 	}
+	var request struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	Email    string `json:"email" binding:"required"`
+}
+
 
 	// 绑定请求数据
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -72,18 +81,18 @@ func RegisterAdmin(c *gin.Context) {
 		return
 	}
 
-	// 解析请求中的 Token
-	user, err := middleware.ParseToken(c)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-		return
-	}
+	// // 解析请求中的 Token
+	// user, err := middleware.ParseToken(c)
+	// if err != nil {
+	// 	c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+	// 	return
+	// }
 
-	// 根据角色判断是否是管理员
-	if user.Role != "admin" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
+	// // 根据角色判断是否是管理员
+	// if user.Role != "admin" {
+	// 	c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	// 	return
+	// }
 
 	// 检查用户名是否已存在
 	var existingUser models.User
