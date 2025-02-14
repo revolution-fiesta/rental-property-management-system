@@ -1,4 +1,7 @@
 { 
   "navigationBarTitleText": "租房",
-  "navigationBarTextStyle": "black"
+  "navigationBarTextStyle": "black",
+  "usingComponents" :{
+    "PropertyCard": "/components/property_card/property_card"
+  }
 }
