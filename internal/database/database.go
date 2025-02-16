@@ -78,6 +78,7 @@ func MigrateModels() {
 		&models.Room{},
 		&models.Password{},
 		&models.Order{},
+		&models.Relationship{}, // 用户与管理员、房间关系表
 	)
 	if err != nil {
 		panic("Database migration failed: " + err.Error())

@@ -29,42 +29,53 @@ func generatePaymentInfo(order models.Order) string {
 	return paymentLink
 }
 
-// 创建订单的API
+// 创建订单的 API
 func CreateOrder(c *gin.Context) {
-	var request CreateOrderRequest
+	var request struct {
+		UserID     uint  `json:"user_id"`
+		RoomID     uint  `json:"room_id"`
+		RentMonths int   `json:"rent_months"` // 用户填写的租期
+	}
+
+	// 获取前端传来的数据
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// 检查房间是否存在
+	// 验证租期是否至少6个月
+	if request.RentMonths < 6 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Rent months must be at least 6"})
+		return
+	}
+
+	// 获取房间信息
 	var room models.Room
-	if err := database.DB.Where("id = ?", request.RoomID).First(&room).Error; err != nil {
+	if err := database.DB.First(&room, request.RoomID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Room not found"})
 		return
 	}
+
+	// 计算总租金
+	totalPrice := float64(request.RentMonths + 2) * room.Price
 
 	// 创建订单
 	order := models.Order{
 		UserID:    request.UserID,
 		RoomID:    request.RoomID,
-		Status:    models.Pending, // 默认订单状态是待处理
-		TotalPrice: request.TotalPrice,
+		Status:    models.Pending,  // 默认订单状态为待处理
+		TotalPrice: totalPrice,
 	}
 
+	// 保存订单到数据库
 	if err := database.DB.Create(&order).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create order"})
 		return
 	}
 
-	// 这里调用支付平台（如微信支付、支付宝等），返回支付信息
-	paymentInfo := generatePaymentInfo(order) // 生成支付信息
-
-	// 返回支付信息
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Order created successfully",
 		"order":   order,
-		"payment_info": paymentInfo, // 返回支付信息
 	})
 }
 
@@ -95,41 +106,83 @@ func UpdateOrderStatus(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Order status updated successfully", "order": order})
 }
-// 删除订单的API
-func DeleteOrder(c *gin.Context) {
-	orderID := c.Param("id")
+// 支付完订单后更新房间状态
+func PayOrder(c *gin.Context) {
+	var request struct {
+		OrderID uint `json:"order_id"`
+	}
 
-	// 查找并删除订单
-	if err := database.DB.Delete(&models.Order{}, orderID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
+	// 获取前端传来的数据
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Order deleted successfully"})
-}
-// 支付回调的API
-func PaymentCallback(c *gin.Context) {
-	orderID := c.DefaultQuery("order_id", "")  // 支付平台传递的订单ID
-	status := c.DefaultQuery("status", "")      // 支付状态（例如 "success" 或 "fail"）
-
-	// 查找订单
+	// 获取订单信息
 	var order models.Order
-	if err := database.DB.Where("id = ?", orderID).First(&order).Error; err != nil {
+	if err := database.DB.First(&order, request.OrderID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
 		return
 	}
 
-	// 根据支付状态更新订单
-	if status == "success" {
-		order.Status = models.Confirmed // 支付成功，更新状态为已确认
-	} else {
-		order.Status = models.Cancelled // 支付失败，更新状态为已取消
+	// 如果订单已支付，则不能再支付
+	if order.Status == models.Completed {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Order already completed"})
+		return
 	}
 
+	// 更新订单为已支付
+	order.Status = models.Completed
 	if err := database.DB.Save(&order).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update order status"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Order status updated successfully"})
+	// 获取房间信息并更新状态
+	var room models.Room
+	if err := database.DB.First(&room, order.RoomID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Room not found"})
+		return
+	}
+
+	// 将房间状态更新为已租
+	room.IsDeleted = true
+	if err := database.DB.Save(&room).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update room status"})
+		return
+	}
+
+	// 查找房间数量最少的管理员
+	var admin models.User
+	if err := database.DB.Where("role = ?", "admin").
+		Order("room_count ASC").First(&admin).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No admin found"})
+		return
+	}
+
+	// 创建管理员与用户、房间的关系
+	relationship := models.Relationship{
+		UserID:    order.UserID,
+		AdminID:   admin.ID,
+		RoomID:    order.RoomID,
+		AssignedAt: fmt.Sprintf("%s", order.CreatedAt),
+	}
+
+	// 保存关系数据
+	if err := database.DB.Create(&relationship).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to assign room to user"})
+		return
+	}
+
+	// 更新管理员的房间数量
+	admin.ManagedRooms++
+	if err := database.DB.Save(&admin).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update admin's room count"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Payment successful, room rented, and admin assigned",
+		"order":   order,
+	})
 }
