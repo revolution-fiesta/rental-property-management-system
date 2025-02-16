@@ -125,12 +125,6 @@ func PayOrder(c *gin.Context) {
 		return
 	}
 
-	// 如果订单已支付，则不能再支付
-	if order.Status == models.Completed {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Order already completed"})
-		return
-	}
-
 	// 更新订单为已支付
 	order.Status = models.Completed
 	if err := database.DB.Save(&order).Error; err != nil {
