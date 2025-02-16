@@ -77,6 +77,7 @@ func MigrateModels() {
 		&models.User{},
 		&models.Room{},
 		&models.Password{},
+		&models.Order{},
 	)
 	if err != nil {
 		panic("Database migration failed: " + err.Error())

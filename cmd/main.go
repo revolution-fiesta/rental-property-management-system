@@ -25,7 +25,6 @@ func main() {
 
 	// 迁移数据库模型
 	database.MigrateModels()
-
 	// 初始化房间数据
 	controllers.InitRoomData()
 
