@@ -15,4 +15,6 @@ func SetupRoutes(r *gin.Engine) {
 	// 需要管理员权限的路由
 	r.PUT("/update-room", middleware.AdminRequired(), controllers.UpdateRoomInfo)
 	r.PUT("/admin-register", middleware.AdminRequired(), RegisterAdmin)
+	r.PUT("/get-workorder", middleware.AdminRequired(), controllers.GetWorkOrdersByAdmin)
+	r.PUT("/update-workorder", middleware.AdminRequired(), controllers.UpdateWorkOrderStatus)
 }
