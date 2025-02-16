@@ -146,3 +146,72 @@ func PayOrder(c *gin.Context) {
 		"order":   order,
 	})
 }
+// 用户退租接口
+func CancelRental(c *gin.Context) {
+	var request struct {
+		UserID uint `json:"user_id"`
+		RoomID uint `json:"room_id"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 查询 relationship 关系表，找到对应的记录
+	var relationship models.Relationship
+	if err := database.DB.
+		Where("user_id = ? AND room_id = ?", request.UserID, request.RoomID).
+		First(&relationship).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Rental relationship not found"})
+		return
+	}
+
+	// 查询房间信息
+	var room models.Room
+	if err := database.DB.First(&room, request.RoomID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Room not found"})
+		return
+	}
+
+	// 查询管理员信息
+	var admin models.User
+	if err := database.DB.First(&admin, relationship.AdminID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Admin not found"})
+		return
+	}
+
+	// 退还押金（这里可以根据业务逻辑调整，暂时打印模拟退款）
+	// 实际项目应调用支付平台接口进行退款，这里仅作业务流程展示
+	// 假设押金是2个月房租
+	refundAmount := room.Price * 2
+	// 模拟退款操作
+	c.JSON(http.StatusOK, gin.H{"message": "Deposit refund initiated", "refund_amount": refundAmount})
+
+	// 删除 relationship 表中的记录
+	if err := database.DB.Delete(&relationship).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete relationship"})
+		return
+	}
+
+	// 更新房间状态为未租出
+	room.IsDeleted = false
+	if err := database.DB.Save(&room).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update room status"})
+		return
+	}
+
+	// 更新管理员房间数量 -1
+	if admin.ManagedRooms > 0 {
+		admin.ManagedRooms--
+	}
+	if err := database.DB.Save(&admin).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update admin room count"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Rental cancelled successfully, deposit refunded",
+		"refund_amount": refundAmount,
+	})
+}
