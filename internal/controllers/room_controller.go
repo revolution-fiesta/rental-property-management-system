@@ -6,7 +6,7 @@ import (
 	"rental-property-management-system/internal/models"
 	"gorm.io/gorm"
 	"github.com/gin-gonic/gin"
-	
+	"fmt"
 )
 // 初始化房间数据
 func InitRoomData() {
@@ -147,5 +147,59 @@ func UpdateRoomInfo(c *gin.Context) {
 		"room":    room,
 	})
 }
+// 查询所有房间接口
+func GetAllRooms(c *gin.Context) {
+	var rooms []models.Room
 
+	// 查询所有房间数据
+	if err := database.DB.Find(&rooms).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve rooms"})
+		return
+	}
+
+	// 返回房间信息
+	c.JSON(http.StatusOK, gin.H{
+		"rooms": rooms,
+	})
+}
+// 查询房间信息，支持多个过滤条件
+func GetFilteredRooms(c *gin.Context) {
+	// 获取查询参数
+	priceMin := c.DefaultQuery("price_min", "0")
+	priceMax := c.DefaultQuery("price_max", "1000000000")
+	roomType := c.DefaultQuery("type", "")
+	orientation := c.DefaultQuery("orientation", "")
+	areaMin := c.DefaultQuery("area_min", "0")  // 占地面积最小值
+	areaMax := c.DefaultQuery("area_max", "1000000000") // 占地面积最大值
+
+	var rooms []models.Room
+	query := database.DB
+
+	// 按房价范围过滤
+	query = query.Where("price >= ? AND price <= ?", priceMin, priceMax)
+
+	// 按房间类型过滤
+	if roomType != "" {
+		query = query.Where("type = ?", roomType)
+	}
+
+	// 按朝向过滤
+	if orientation != "" {
+		query = query.Where("tags LIKE ?", fmt.Sprintf("%%%s%%", orientation)) // 朝向在 tags 字段中
+	}
+
+	// 按占地面积过滤
+	query = query.Where("area >= ? AND area <= ?", areaMin, areaMax)
+
+	// 查询符合条件的房间数据
+	if err := query.Find(&rooms).Error; err != nil && err != gorm.ErrRecordNotFound {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve rooms"})
+		return
+	}
+
+	// 返回查询结果
+	c.JSON(http.StatusOK, gin.H{
+		"rooms": rooms,
+	})
+}
 
