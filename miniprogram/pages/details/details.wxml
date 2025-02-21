@@ -7,7 +7,6 @@
 <view style="display: flex; flex-direction: column; height: 329rpx;; margin-bottom: 10px; position: relative; left: 0rpx; top: -52rpx; width: 750rpx; box-sizing: border-box">
   <view style="background-color: #F1F1F1; display: flex; flex-direction: row; gap: 20px; height: 102rpx; box-sizing: border-box">
     <text style="position: relative; left: 50rpx; top: 34rpx; ">华发山庄</text>
-    <text style="position: relative; left: 50rpx; top: 34rpx">一室一厅</text>
   </view>
   
   <view style="background-color: #E6E6E6; display: flex; flex-direction: row; gap: 4; height: 93rpx; box-sizing: border-box">
@@ -16,6 +15,28 @@
     <view style="position: relative; left: 30px; top: 13px">/月</view>
   </view>
   <view style="background-color: #F1F1F1; height: 156rpx; display: block; box-sizing: border-box">
-    <view style="width: 100%; background: #d1d1d1; height: 258rpx; display: block; box-sizing: border-box"></view>
+    <view style="width: 100%; background: #d1d1d1; height: 258rpx; display: block; box-sizing: border-box">
+      <view style="display:flex; flex-direction:row; height: 150px;">
+        <SquareGrid style="width: 393rpx; display: block; box-sizing: border-box" />
+
+        
+        <view style="background-color: #F1F1F1; flex: 1;"></view>
+      </view>
+    </view>
+
   </view>
 </view>
+
+<view class="fixed-bottom">
+  <view style="width: 30px;"></view>
+    <view style="display: flex; flex-direction: column; padding: 4px; gap: 6px; width: 150px;">
+      <!-- 点击复制管家电话 -->
+      <image src="/images/ui/phone-call.png" style="width: 23px; height: 23px; display: flex;"></image>
+      <view style="font-weight: 200; font-size: 15px; display: flex;">看房</view>
+    </view>
+      <view style="width: 20%;"></view>
+    <button class="btn">加入收藏</button>
+    <button class="btn">立即签约</button>
+    <view style="width: 10%;"></view>
+
+  </view>

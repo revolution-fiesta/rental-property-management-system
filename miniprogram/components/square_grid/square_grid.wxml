@@ -1,0 +1,32 @@
+<view style="background-color: #F1F1F1; flex: 1;">
+          <view style="display:flex; flex-direction:row; height: 150px;;">
+            <view style="background-color: #F1F1F1; flex: 1;">
+              <view style="display:flex; flex-direction:column; height: 150px;">
+                <view style="background-color: #F1F1F1; flex: 1; text-align: center">
+                  <!-- element 1 -->
+                  <text>住房面积</text>
+                  <text>13 平方米</text>
+                </view>
+                <view style="background-color: #F1F1F1; flex: 1; text-align: center;">
+                  <!-- element 2 -->
+                    <text>户型</text>
+                    <text>一室一厅</text>
+                </view>
+              </view>
+            </view>
+            <view style="background-color: #F1F1F1; flex: 1;">
+              <view style="display:flex; flex-direction:column; height: 150px;">
+                <view style="background-color: #F1F1F1; flex: 1; text-align: center;">
+                 <!-- element 3 -->
+                  <text>楼层</text>
+                  <text>4 楼</text>
+                </view>
+                <view style="background-color: #F1F1F1; flex: 1; text-align: center;">
+                  <!-- element 4 -->
+                  <text>朝向</text>
+                  <text>南</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view><!--components/square_grid/square_grid.wxml-->

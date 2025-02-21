@@ -7,5 +7,19 @@
 
   <PropertyCard bind:tap="goToDetail"/>
 
-
 </scroll-view>
+
+<view class="fixed-button">
+    <button bindtap="toggleBottomBar">打开底部栏</button>
+  </view>
+
+  <!-- 底部栏 -->
+  <view class="bottom-bar" animation="{{animationData}}">
+    <view class="bottom-content">
+      <text>这是底部栏的内容</text>
+    </view>
+
+    <button bindtap="toggleBottomBar">关闭底部栏</button>
+  </view>
+
+

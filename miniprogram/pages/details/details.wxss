@@ -1,1 +1,60 @@
-/* pages/details/details.wxss */
+.container {
+  width: 100%;
+  padding: 20px;
+}
+
+.icon-scroll {
+  display: flex;
+  white-space: nowrap; /* 保证图标在同一行内 */
+}
+
+.icon-item {
+  width: 80px;
+  height: 80px;
+  margin-right: 10px;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+}
+
+
+
+.container {
+  position: relative;
+  padding-bottom: 80rpx; /* 为了让底部区域有空间，避免被遮挡 */
+}
+
+.fixed-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;  
+  background-color: #ffffff;
+  padding: 15rpx;
+  box-shadow: 0 -5rpx 20rpx rgba(0, 0, 0, 0.1); /* 阴影效果 */
+}
+
+.btn {
+  width: 35%; /* 按钮宽度为父容器的 45% */
+  font-size: 16px;
+  border-radius: 25rpx; /* 圆角 */
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+}
+
+.btn-left {
+  background-color: #ff5c5c; /* 左侧按钮背景色 */
+  color: white;
+}
+
+.btn-right {
+  background-color: #ffffff;
+  color: #ff5c5c; /* 右侧按钮文字颜色 */
+  border: 2rpx solid #ff5c5c; /* 右侧按钮边框 */
+}

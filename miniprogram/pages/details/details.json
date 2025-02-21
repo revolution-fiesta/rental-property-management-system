@@ -1,3 +1,5 @@
 {
-  "usingComponents": {}
+  "usingComponents": {
+    "SquareGrid": "/components/square_grid/square_grid"
+  }
 }
