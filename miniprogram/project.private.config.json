@@ -1,7 +1,7 @@
 {
   "projectname": "miniprogram",
   "setting": {
-    "compileHotReLoad": false
+    "compileHotReLoad": true
   },
   "libVersion": "3.7.7"
 }

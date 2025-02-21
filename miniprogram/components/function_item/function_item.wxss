@@ -1,0 +1,23 @@
+
+
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 350px;  
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  background-color: white;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 15px;
+}
+
+.arrow {
+  margin-left: auto;
+  width: 10px;
+  height: 10px;
+}

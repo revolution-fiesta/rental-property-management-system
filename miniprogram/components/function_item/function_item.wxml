@@ -1,0 +1,5 @@
+<view class="list-item" bindtap="onTap">
+  <image class="icon" src="{{icon}}" />
+  <text>{{text}}</text>
+  <image class="arrow" src="/images/ui/right-arrow.png" />
+</view>

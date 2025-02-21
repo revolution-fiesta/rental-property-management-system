@@ -28,5 +28,4 @@ Component({
   },
   data: {},
   methods: {},
-
 });

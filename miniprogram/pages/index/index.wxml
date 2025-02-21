@@ -5,7 +5,7 @@
     <input class="search-input" placeholder="搜索房源" bindinput="onSearchInput" />
   </view>
 
-  <PropertyCard/>
+  <PropertyCard bind:tap="goToDetail"/>
 
 
 </scroll-view>

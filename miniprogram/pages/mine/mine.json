@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "MyHouse": "/components/my_house/my_house"
+  }
+}

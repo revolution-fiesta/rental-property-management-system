@@ -1,7 +1,10 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/info/info"
+    "pages/info/info",
+    "pages/details/details",
+    "pages/mine/mine",
+    "pages/my_house_info/my_house_info"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -10,18 +13,26 @@
     "navigationBarTextStyle": "black",
     "navigationStyle": "default"
   },
-
   "componentFramework": "glass-easel",
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents",
-  "tabBar": {"list": [{
-    "pagePath": "pages/index/index",
-    "iconPath": "images/tabbar/property.png",
-    "selectedIconPath": "images/tabbar/property_selected.png"
-  },{
-    "pagePath": "pages/info/info",
-    "iconPath": "images/tabbar/info.png",
-    "selectedIconPath": "images/tabbar/info_selected.png"
-
-  }]}
+  "tabBar": {
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "images/tabbar/search.png",
+        "selectedIconPath": "images/tabbar/search_selected.png"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "iconPath": "images/tabbar/property.png",
+        "selectedIconPath": "images/tabbar/property_selected.png"
+      },
+      {
+        "pagePath": "pages/info/info",
+        "iconPath": "images/tabbar/info.png",
+        "selectedIconPath": "images/tabbar/info_selected.png"
+      }
+    ]
+  }
 }

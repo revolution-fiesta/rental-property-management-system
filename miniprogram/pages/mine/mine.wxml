@@ -1,0 +1,6 @@
+<scroll-view class="scrollarea" scroll-y type="list">
+
+  <MyHouse bind:tap="goToDetail"/>
+
+
+</scroll-view>
