@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"rental-property-management-system/internal/database"
 	"rental-property-management-system/internal/models"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,53 +25,108 @@ func CreateOrder(c *gin.Context) {
 	// 获取房间信息，检查是否已租出去
 	var room models.Room
 	if err := database.DB.First(&room, request.RoomID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Room not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "房间不存在"})
 		return
 	}
 
 	// 检查房间是否已被租出去
 	if room.IsDeleted {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Room is already rented"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "该房间已出租"})
 		return
 	}
 
-	// 假设前端会传入起租月数，至少6个月
-	var rentRequest struct {
-		Months int `json:"months"`
-	}
-	if err := c.ShouldBindJSON(&rentRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid rent duration"})
-		return
-	}
-	if rentRequest.Months < 6 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Minimum rental period is 6 months"})
-		return
-	}
+	// 获取当前时间
+	now := time.Now()
+	year, month, _ := now.Date()
+	loc := now.Location()
+	firstOfMonth := time.Date(year, month, 1, 0, 0, 0, 0, loc)
+	lastOfMonth := firstOfMonth.AddDate(0, 1, -1)      // 获取当月最后一天
+	totalDays := lastOfMonth.Day()                     // 获取当月总天数
+	remainingDays := lastOfMonth.Day() - now.Day() + 1 // 剩余天数（包含今天）
 
-	// 计算订单总价
-	totalPrice := float64(rentRequest.Months + 2) * room.Price
+	// 计算本月租金
+	currentMonthRent := (float64(remainingDays) / float64(totalDays)) * room.Price
+
+	// 计算押金（2 个月）
+	deposit := 2 * room.Price
+
+	// 计算签约时需要支付的费用
+	totalInitialPayment := currentMonthRent + deposit
 
 	// 创建订单
 	order := models.Order{
-		UserID:    request.UserID,
-		RoomID:    request.RoomID,
-		Status:    models.Pending,
-		TotalPrice: totalPrice,
+		UserID:     request.UserID,
+		RoomID:     request.RoomID,
+		Status:     models.Pending, // 订单状态：待支付
+		TotalPrice: totalInitialPayment,
+		//StartDate:  now, // 记录租赁开始时间
 	}
 
 	// 保存订单到数据库
 	if err := database.DB.Create(&order).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create order"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "创建订单失败"})
 		return
 	}
 
-	// 模拟调用支付窗口的逻辑（这里前端会调用微信支付接口）
+	// 更新房间状态为已租
+	room.IsDeleted = true
+	database.DB.Save(&room)
+
+	// 返回订单详情
 	c.JSON(http.StatusOK, gin.H{
-		"message":    "Order created successfully, please proceed to payment",
-		"order_id":   order.ID,
-		"total_price": totalPrice,
+		"message":       "订单创建成功，请支付租金和押金",
+		"order_id":      order.ID,
+		"current_rent":  currentMonthRent,
+		"deposit":       deposit,
+		"total_payment": totalInitialPayment,
 	})
 }
+
+// 生成每月月结订单
+// 生成月结订单
+func GenerateMonthlyOrders(c *gin.Context) {
+	now := time.Now()
+	// 查询所有正在租赁的订单
+	var activeOrders []models.Order
+	if err := database.DB.Where("status = ?", models.Completed).Find(&activeOrders).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询订单失败"})
+		return
+	}
+
+	var newOrders []models.Order
+
+	for _, order := range activeOrders {
+		var room models.Room
+		if err := database.DB.First(&room, order.RoomID).Error; err != nil {
+			continue
+		}
+
+		// 计算当月租金
+		monthlyRent := room.Price
+
+		// 生成新的月结订单
+		newOrder := models.Order{
+			UserID:     order.UserID,
+			RoomID:     order.RoomID,
+			Status:     models.Pending,
+			TotalPrice: monthlyRent,
+			CreatedAt:  now,
+		}
+		newOrders = append(newOrders, newOrder)
+	}
+
+	// 批量插入订单
+	if len(newOrders) > 0 {
+		if err := database.DB.Create(&newOrders).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "批量创建订单失败"})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "月结订单已生成", "order_count": len(newOrders)})
+}
+
+// 支付订单接口
 func PayOrder(c *gin.Context) {
 	var request struct {
 		OrderID uint `json:"order_id"`
@@ -146,6 +202,7 @@ func PayOrder(c *gin.Context) {
 		"order":   order,
 	})
 }
+
 // 用户退租接口
 func CancelRental(c *gin.Context) {
 	var request struct {
@@ -211,7 +268,7 @@ func CancelRental(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Rental cancelled successfully, deposit refunded",
+		"message":       "Rental cancelled successfully, deposit refunded",
 		"refund_amount": refundAmount,
 	})
 }
