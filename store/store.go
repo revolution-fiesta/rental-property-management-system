@@ -58,18 +58,9 @@ func DeactivateAccessToken(ctx context.Context, token string) error {
 
 // 程序初始化时调用该函数初始化数据库连接
 func Init() error {
-	cfg := config.AppConfig.Database
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
-		cfg.Host,
-		cfg.User,
-		cfg.Password,
-		cfg.Name,
-		cfg.Port,
-		cfg.SSLMode)
-
 	// 连接 Postgres 数据库
 	var err error
-	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err = gorm.Open(postgres.Open(config.GetPostgresDsn()), &gorm.Config{})
 	if err != nil || db == nil {
 		return errors.Wrapf(err, "Failed to connect to Postgres")
 	}

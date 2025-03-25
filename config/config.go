@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -12,7 +13,7 @@ var (
 	RedisDB                             = 0
 	ProjectName           string        = "revolution-fiesta"
 	AccessTokenExpiration time.Duration = time.Hour / 4
-	YamlConfigPath        string        = "../config.yaml"
+	YamlConfigPath        string        = "./config.yaml"
 	AppConfig             Config
 )
 
@@ -62,4 +63,16 @@ func LoadConfig() error {
 		return errors.Wrapf(err, "Error decoding config")
 	}
 	return nil
+}
+
+func GetPostgresDsn() string {
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
+		AppConfig.Database.Host,
+		AppConfig.Database.User,
+		AppConfig.Database.Password,
+		AppConfig.Database.Name,
+		AppConfig.Database.Port,
+		AppConfig.Database.SSLMode)
+	fmt.Println(dsn)
+	return dsn
 }
