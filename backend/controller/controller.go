@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(r *gin.Engine) {
+func ConfigRouter(r *gin.Engine) {
 	// 用户注册和登录不需要管理员权限
 	r.POST("/login", Login)
 	r.POST("/register", Register)

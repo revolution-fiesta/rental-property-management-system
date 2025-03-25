@@ -125,8 +125,8 @@ func GenerateMockData() error {
 	return nil
 }
 
-// MigrateModels 自动迁移模型
-func MigrateModels() error {
+// Migrate 自动迁移模型
+func Migrate() error {
 	return db.AutoMigrate(
 		&models.User{},
 		&models.Room{},
