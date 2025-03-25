@@ -1,8 +1,8 @@
 package api
 
 import (
-	"rental-property-management-system/controllers"
-	"rental-property-management-system/middleware"
+	"rental-property-management-system/backend/controllers"
+	"rental-property-management-system/backend/middleware"
 
 	"github.com/gin-gonic/gin"
 )

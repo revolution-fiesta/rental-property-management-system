@@ -2,8 +2,8 @@ package main
 
 import (
 	"log/slog"
-	"rental-property-management-system/config"
-	"rental-property-management-system/store"
+	"rental-property-management-system/backend/config"
+	"rental-property-management-system/backend/store"
 
 	"github.com/gin-gonic/gin"
 )

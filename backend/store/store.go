@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"rental-property-management-system/config"
-	"rental-property-management-system/models"
+	"rental-property-management-system/backend/config"
+	"rental-property-management-system/backend/models"
 	"strings"
 
 	"github.com/go-redis/redis/v8"

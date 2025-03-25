@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"rental-property-management-system/models"
+	"rental-property-management-system/backend/models"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"

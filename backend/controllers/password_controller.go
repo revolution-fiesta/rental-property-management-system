@@ -4,9 +4,8 @@ import (
 	"math/rand"
 	"net/http"
 	"regexp"
-	"rental-property-management-system/models"
-	"rental-property-management-system/store"
-
+	"rental-property-management-system/backend/models"
+	"rental-property-management-system/backend/store"
 	"time"
 
 	"github.com/gin-gonic/gin"

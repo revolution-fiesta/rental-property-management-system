@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"net/http"
-	"rental-property-management-system/models"
-	"rental-property-management-system/store"
+	"rental-property-management-system/backend/models"
+	"rental-property-management-system/backend/store"
 
 	"github.com/gin-gonic/gin"
 )
