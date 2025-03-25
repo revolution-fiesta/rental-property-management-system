@@ -1,4 +1,4 @@
-package models
+package store
 
 import (
 	"gorm.io/gorm"
@@ -7,9 +7,9 @@ import (
 type RoomType string
 
 const (
-	TwoBedroom   RoomType = "two_bedroom"
-	OneBedroom   RoomType = "one_bedroom"
-	SingleRoom   RoomType = "single_room"
+	TwoBedroom RoomType = "two_bedroom"
+	OneBedroom RoomType = "one_bedroom"
+	SingleRoom RoomType = "single_room"
 )
 
 type Room struct {
@@ -18,6 +18,6 @@ type Room struct {
 	Quantity  int      `gorm:"not null"`
 	Price     float64  `gorm:"type:decimal(10,2);not null"`
 	IsDeleted bool     `gorm:"default:false"`
-	Tags      string   `gorm:"type:varchar(255)"`  // 标签，最多255个字符
+	Tags      string   `gorm:"type:varchar(255)"`           // 标签，最多255个字符
 	Area      float64  `gorm:"type:decimal(10,2);not null"` // 占地面积，单位是平方米
 }

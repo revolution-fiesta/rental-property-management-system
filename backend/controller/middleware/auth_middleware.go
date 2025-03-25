@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"rental-property-management-system/backend/models"
+	"rental-property-management-system/backend/store"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
@@ -27,11 +27,11 @@ func GenerateRandomKey() string {
 var jwtSecret = []byte(GenerateRandomKey()) // JWT 秘钥
 
 // 解析 Token 并提取角色信息
-func ParseToken(c *gin.Context) (*models.User, error) {
+func ParseToken(c *gin.Context) (*store.User, error) {
 	// 从请求头获取 token
 	tokenString := c.GetHeader("Authorization")
 	if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
-		return nil, fmt.Errorf("Authorization token missing or invalid")
+		return nil, fmt.Errorf("authorization token missing or invalid")
 	}
 
 	tokenString = tokenString[7:] // 去掉 "Bearer " 前缀
@@ -40,13 +40,13 @@ func ParseToken(c *gin.Context) (*models.User, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// 确保使用的是 HMAC 签名算法
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return jwtSecret, nil
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to parse token: %v", err)
+		return nil, fmt.Errorf("failed to parse token: %v", err)
 	}
 
 	// 获取 Claims 中的用户信息
@@ -55,13 +55,13 @@ func ParseToken(c *gin.Context) (*models.User, error) {
 		role := claims["role"].(string)
 
 		// 返回用户信息
-		return &models.User{
+		return &store.User{
 			Username: username,
 			Role:     role,
 		}, nil
 	}
 
-	return nil, fmt.Errorf("Invalid token")
+	return nil, fmt.Errorf("invalid token")
 }
 
 // 仅管理员访问的中间件

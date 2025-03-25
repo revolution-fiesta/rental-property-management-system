@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"rental-property-management-system/backend/middleware"
+	"rental-property-management-system/backend/controller/middleware"
 
 	"github.com/gin-gonic/gin"
 )

@@ -3,8 +3,8 @@ package controller
 import (
 	"fmt"
 	"net/http"
-	"rental-property-management-system/backend/middleware"
-	"rental-property-management-system/backend/models"
+
+	"rental-property-management-system/backend/controller/middleware"
 	"rental-property-management-system/backend/store"
 
 	"time"
@@ -53,7 +53,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	var user models.User
+	var user store.User
 	if err := store.GetDB().Where("username = ?", loginData.Username).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username"})
 		return
@@ -86,14 +86,14 @@ func hashPassword(password string) (string, error) {
 
 // 注册用户接口
 func Register(c *gin.Context) {
-	var user models.User
+	var user store.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	// 判断是否已经有管理员
-	var firstAdmin models.User
+	var firstAdmin store.User
 	if err := store.GetDB().Where("role = ?", "admin").First(&firstAdmin).Error; err != nil && err.Error() == "record not found" {
 		// 如果没有管理员，第一位注册的用户自动成为管理员
 		user.Role = "admin"
@@ -102,7 +102,7 @@ func Register(c *gin.Context) {
 	}
 
 	// 检查用户名是否已存在
-	var existingUser models.User
+	var existingUser store.User
 	if err := store.GetDB().Where("username = ?", user.Username).First(&existingUser).Error; err == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Username already exists"})
 		return
@@ -132,7 +132,7 @@ func RegisterAdmin(c *gin.Context) {
 	user, _ := c.Get("user") // 获取用户信息
 
 	// 确认用户为管理员
-	if user == nil || user.(*models.User).Role != "admin" {
+	if user == nil || user.(*store.User).Role != "admin" {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have admin privileges"})
 		return
 	}
@@ -162,7 +162,7 @@ func RegisterAdmin(c *gin.Context) {
 	// }
 
 	// 检查用户名是否已存在
-	var existingUser models.User
+	var existingUser store.User
 	if err := store.GetDB().Where("username = ?", request.Username).First(&existingUser).Error; err == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Username already exists"})
 		return
@@ -176,7 +176,7 @@ func RegisterAdmin(c *gin.Context) {
 	}
 
 	// 创建管理员用户
-	newAdmin := models.User{
+	newAdmin := store.User{
 		Username: request.Username,
 		Password: hashedPassword,
 		Email:    request.Email,

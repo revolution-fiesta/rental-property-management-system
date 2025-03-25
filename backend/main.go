@@ -9,6 +9,8 @@ import (
 	"os/signal"
 	"rental-property-management-system/backend/config"
 	"rental-property-management-system/backend/controller"
+	"rental-property-management-system/backend/utils"
+
 	"rental-property-management-system/backend/store"
 	"syscall"
 
@@ -47,6 +49,13 @@ func main() {
 	// TODO: 仅用于生成测试数据库数据
 	if err = store.GenerateMockData(); err != nil {
 		slog.Error(err.Error())
+		return
+	}
+
+	// 生成服务器密钥
+	config.PrivateKey, err = utils.GeneratePrivateKey()
+	if err != nil {
+		slog.Error("failed to generate rsa key pairs")
 		return
 	}
 

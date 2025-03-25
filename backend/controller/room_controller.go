@@ -3,7 +3,6 @@ package controller
 import (
 	"fmt"
 	"net/http"
-	"rental-property-management-system/backend/models"
 	"rental-property-management-system/backend/store"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +11,7 @@ import (
 
 // 获取可用的房间
 func GetAvailableRooms(c *gin.Context) {
-	var rooms []models.Room
+	var rooms []store.Room
 
 	result := store.GetDB().Where("is_deleted = ?", false).Find(&rooms)
 	if result.Error != nil {
@@ -26,8 +25,8 @@ func GetAvailableRooms(c *gin.Context) {
 // 选择房间
 func selectRoom(c *gin.Context) {
 	type RoomSelection struct {
-		RoomType models.RoomType `json:"room_type" binding:"required"`
-		Quantity int             `json:"quantity" binding:"required"`
+		RoomType store.RoomType `json:"room_type" binding:"required"`
+		Quantity int            `json:"quantity" binding:"required"`
 	}
 
 	var selection RoomSelection
@@ -38,7 +37,7 @@ func selectRoom(c *gin.Context) {
 		return
 	}
 
-	var room models.Room
+	var room store.Room
 
 	// 根据房间类型和库存筛选房间
 	if err := store.GetDB().First(&room, "type = ? AND is_deleted = ? AND quantity >= ?", selection.RoomType, false, selection.Quantity).Error; err != nil {
@@ -65,7 +64,7 @@ func UpdateRoomInfo(c *gin.Context) {
 	user, _ := c.Get("user") // 获取用户信息
 
 	// 确认用户为管理员
-	if user == nil || user.(*models.User).Role != "admin" {
+	if user == nil || user.(*store.User).Role != "admin" {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have admin privileges"})
 		return
 	}
@@ -87,14 +86,14 @@ func UpdateRoomInfo(c *gin.Context) {
 	}
 
 	// 查找房间
-	var room models.Room
+	var room store.Room
 	err := store.GetDB().First(&room, request.RoomID).Error
 
 	// 如果找不到房间，则创建新的房间
 	if err != nil && err == gorm.ErrRecordNotFound {
 		// 房间不存在，创建新房间
-		room = models.Room{
-			Type:      models.RoomType(*request.Type),
+		room = store.Room{
+			Type:      store.RoomType(*request.Type),
 			Price:     *request.Price,
 			IsDeleted: *request.IsDeleted,
 			Tags:      *request.Tags,
@@ -113,7 +112,7 @@ func UpdateRoomInfo(c *gin.Context) {
 
 	// 如果房间存在，则更新房间信息
 	if request.Type != nil {
-		room.Type = models.RoomType(*request.Type)
+		room.Type = store.RoomType(*request.Type)
 	}
 	if request.Price != nil {
 		room.Price = *request.Price
@@ -142,7 +141,7 @@ func UpdateRoomInfo(c *gin.Context) {
 
 // 查询所有房间接口
 func GetAllRooms(c *gin.Context) {
-	var rooms []models.Room
+	var rooms []store.Room
 
 	// 查询所有房间数据
 	if err := store.GetDB().Find(&rooms).Error; err != nil {
@@ -166,7 +165,7 @@ func GetFilteredRooms(c *gin.Context) {
 	areaMin := c.DefaultQuery("area_min", "0")          // 占地面积最小值
 	areaMax := c.DefaultQuery("area_max", "1000000000") // 占地面积最大值
 
-	var rooms []models.Room
+	var rooms []store.Room
 	query := store.GetDB()
 
 	// 按房价范围过滤

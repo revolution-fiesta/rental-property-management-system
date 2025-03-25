@@ -1,6 +1,7 @@
 package config
 
 import (
+	"crypto/rsa"
 	"fmt"
 	"os"
 	"time"
@@ -15,6 +16,7 @@ var (
 	AccessTokenExpiration time.Duration = time.Hour / 4
 	YamlConfigPath        string        = "./config.yaml"
 	AppConfig             Config
+	PrivateKey            *rsa.PrivateKey
 )
 
 type Config struct {

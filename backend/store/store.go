@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 	"rental-property-management-system/backend/config"
-	"rental-property-management-system/backend/models"
 	"strings"
 
 	"github.com/go-redis/redis/v8"
@@ -112,13 +111,13 @@ func Close() (error, error) {
 
 // 测试时的测试数据
 func GenerateMockData() error {
-	rooms := []models.Room{
-		{Type: models.TwoBedroom, Quantity: 311, Price: 5000}, // 两房一厅
-		{Type: models.OneBedroom, Quantity: 605, Price: 3500}, // 一房一厅
-		{Type: models.SingleRoom, Quantity: 505, Price: 2000}, // 单间
+	rooms := []Room{
+		{Type: TwoBedroom, Quantity: 311, Price: 5000}, // 两房一厅
+		{Type: OneBedroom, Quantity: 605, Price: 3500}, // 一房一厅
+		{Type: SingleRoom, Quantity: 505, Price: 2000}, // 单间
 	}
 	for _, room := range rooms {
-		if tx := db.FirstOrCreate(&room, models.Room{Type: room.Type}); tx.Error != nil {
+		if tx := db.FirstOrCreate(&room, Room{Type: room.Type}); tx.Error != nil {
 			return errors.Wrapf(tx.Error, "failed to generate mock data")
 		}
 	}
@@ -128,12 +127,12 @@ func GenerateMockData() error {
 // Migrate 自动迁移模型
 func Migrate() error {
 	return db.AutoMigrate(
-		&models.User{},
-		&models.Room{},
-		&models.Password{},
-		&models.Order{},
+		&User{},
+		&Room{},
+		&Password{},
+		&Order{},
 		// 用户与管理员、房间关系表
-		&models.Relationship{},
-		&models.WorkOrder{},
+		&Relationship{},
+		&WorkOrder{},
 	)
 }

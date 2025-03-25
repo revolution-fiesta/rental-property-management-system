@@ -4,7 +4,6 @@ import (
 	"math/rand"
 	"net/http"
 	"regexp"
-	"rental-property-management-system/backend/models"
 	"rental-property-management-system/backend/store"
 	"time"
 
@@ -21,7 +20,7 @@ func GenerateTempPassword(c *gin.Context) {
 		return
 	}
 
-	password := models.Password{
+	password := store.Password{
 		RoomID:    request.RoomID,
 		Password:  generateRandomPassword(6),
 		IsTemp:    true,
@@ -71,7 +70,7 @@ func changeRoomPassword(c *gin.Context) {
 	}
 
 	// 查询该房间的临时密码记录
-	var password models.Password
+	var password store.Password
 	if err := store.GetDB().First(&password, "room_id = ? AND is_temp = ?", request.RoomID, true).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Room not found or no temporary password available"})
 		return

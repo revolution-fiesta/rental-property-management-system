@@ -1,7 +1,8 @@
-package models
+package store
 
 import (
 	"time"
+
 	"gorm.io/gorm"
 )
 

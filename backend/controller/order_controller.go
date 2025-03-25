@@ -2,7 +2,7 @@ package controller
 
 import (
 	"net/http"
-	"rental-property-management-system/backend/models"
+
 	"rental-property-management-system/backend/store"
 
 	"time"
@@ -24,7 +24,7 @@ func CreateOrder(c *gin.Context) {
 	}
 
 	// 获取房间信息，检查是否已租出去
-	var room models.Room
+	var room store.Room
 	if err := store.GetDB().First(&room, request.RoomID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "房间不存在"})
 		return
@@ -55,10 +55,10 @@ func CreateOrder(c *gin.Context) {
 	totalInitialPayment := currentMonthRent + deposit
 
 	// 创建订单
-	order := models.Order{
+	order := store.Order{
 		UserID:     request.UserID,
 		RoomID:     request.RoomID,
-		Status:     models.Pending, // 订单状态：待支付
+		Status:     store.Pending, // 订单状态：待支付
 		TotalPrice: totalInitialPayment,
 		//StartDate:  now, // 记录租赁开始时间
 	}
@@ -88,16 +88,16 @@ func CreateOrder(c *gin.Context) {
 func GenerateMonthlyOrders(c *gin.Context) {
 	now := time.Now()
 	// 查询所有正在租赁的订单
-	var activeOrders []models.Order
-	if err := store.GetDB().Where("status = ?", models.Completed).Find(&activeOrders).Error; err != nil {
+	var activeOrders []store.Order
+	if err := store.GetDB().Where("status = ?", store.Completed).Find(&activeOrders).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询订单失败"})
 		return
 	}
 
-	var newOrders []models.Order
+	var newOrders []store.Order
 
 	for _, order := range activeOrders {
-		var room models.Room
+		var room store.Room
 		if err := store.GetDB().First(&room, order.RoomID).Error; err != nil {
 			continue
 		}
@@ -106,10 +106,10 @@ func GenerateMonthlyOrders(c *gin.Context) {
 		monthlyRent := room.Price
 
 		// 生成新的月结订单
-		newOrder := models.Order{
+		newOrder := store.Order{
 			UserID:     order.UserID,
 			RoomID:     order.RoomID,
-			Status:     models.Pending,
+			Status:     store.Pending,
 			TotalPrice: monthlyRent,
 			CreatedAt:  now,
 		}
@@ -139,26 +139,26 @@ func PayOrder(c *gin.Context) {
 	}
 
 	// 查找订单
-	var order models.Order
+	var order store.Order
 	if err := store.GetDB().First(&order, request.OrderID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
 		return
 	}
 
-	if order.Status == models.Completed {
+	if order.Status == store.Completed {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Order already paid"})
 		return
 	}
 
 	// 更新订单状态
-	order.Status = models.Completed
+	order.Status = store.Completed
 	if err := store.GetDB().Save(&order).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update order status"})
 		return
 	}
 
 	// 获取房间信息，并更新状态为已租出
-	var room models.Room
+	var room store.Room
 	if err := store.GetDB().First(&room, order.RoomID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Room not found"})
 		return
@@ -171,7 +171,7 @@ func PayOrder(c *gin.Context) {
 	}
 
 	// 按房间数量最少的管理员分配
-	var admin models.User
+	var admin store.User
 	if err := store.GetDB().Where("role = ?", "admin").
 		Order("room_count ASC").
 		First(&admin).Error; err != nil {
@@ -180,7 +180,7 @@ func PayOrder(c *gin.Context) {
 	}
 
 	// 创建 Relationship 记录
-	relationship := models.Relationship{
+	relationship := store.Relationship{
 		UserID:  order.UserID,
 		AdminID: admin.ID,
 		RoomID:  order.RoomID,
@@ -217,7 +217,7 @@ func CancelRental(c *gin.Context) {
 	}
 
 	// 查询 relationship 关系表，找到对应的记录
-	var relationship models.Relationship
+	var relationship store.Relationship
 	if err := store.GetDB().
 		Where("user_id = ? AND room_id = ?", request.UserID, request.RoomID).
 		First(&relationship).Error; err != nil {
@@ -226,14 +226,14 @@ func CancelRental(c *gin.Context) {
 	}
 
 	// 查询房间信息
-	var room models.Room
+	var room store.Room
 	if err := store.GetDB().First(&room, request.RoomID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Room not found"})
 		return
 	}
 
 	// 查询管理员信息
-	var admin models.User
+	var admin store.User
 	if err := store.GetDB().First(&admin, relationship.AdminID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Admin not found"})
 		return

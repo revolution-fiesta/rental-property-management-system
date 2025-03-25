@@ -2,7 +2,7 @@ package controller
 
 import (
 	"net/http"
-	"rental-property-management-system/backend/models"
+
 	"rental-property-management-system/backend/store"
 
 	"github.com/gin-gonic/gin"
@@ -10,7 +10,7 @@ import (
 
 // 查询房间分配关系，包含房间信息
 func GetAllRelationships(c *gin.Context) {
-	var relationships []models.Relationship
+	var relationships []store.Relationship
 
 	// 使用 Preload 来加载关联的房间信息
 	if err := store.GetDB().Preload("Room").Find(&relationships).Error; err != nil {

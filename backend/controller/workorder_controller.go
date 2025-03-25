@@ -2,7 +2,6 @@ package controller
 
 import (
 	"net/http"
-	"rental-property-management-system/backend/models"
 	"rental-property-management-system/backend/store"
 
 	"github.com/gin-gonic/gin"
@@ -22,19 +21,19 @@ func CreateWorkOrder(c *gin.Context) {
 	}
 
 	// 确认房间和用户的绑定关系，找到对应的管理员
-	var relationship models.Relationship
+	var relationship store.Relationship
 	if err := store.GetDB().Where("user_id = ? AND room_id = ?", input.UserID, input.RoomID).First(&relationship).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "未找到租赁关系"})
 		return
 	}
 
 	// 创建工单
-	workOrder := models.WorkOrder{
+	workOrder := store.WorkOrder{
 		UserID:  input.UserID,
 		RoomID:  input.RoomID,
 		AdminID: relationship.AdminID,
 		Problem: input.Problem,
-		Status:  models.WorkOrderPending,
+		Status:  store.WorkOrderPending,
 	}
 
 	if err := store.GetDB().Create(&workOrder).Error; err != nil {
@@ -51,13 +50,13 @@ func GetWorkOrdersByAdmin(c *gin.Context) {
 	user, _ := c.Get("user") // 获取用户信息
 
 	// 确认用户为管理员
-	if user == nil || user.(*models.User).Role != "admin" {
+	if user == nil || user.(*store.User).Role != "admin" {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have admin privileges"})
 		return
 	}
 	adminID := c.Param("admin_id")
-	var workOrders []models.WorkOrder
-	if err := store.GetDB().Where("admin_id = ? AND status = ?", adminID, models.WorkOrderPending).Find(&workOrders).Error; err != nil {
+	var workOrders []store.WorkOrder
+	if err := store.GetDB().Where("admin_id = ? AND status = ?", adminID, store.WorkOrderPending).Find(&workOrders).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询工单失败"})
 		return
 	}
@@ -71,7 +70,7 @@ func UpdateWorkOrderStatus(c *gin.Context) {
 	user, _ := c.Get("user") // 获取用户信息
 
 	// 确认用户为管理员
-	if user == nil || user.(*models.User).Role != "admin" {
+	if user == nil || user.(*store.User).Role != "admin" {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have admin privileges"})
 		return
 	}
@@ -85,18 +84,18 @@ func UpdateWorkOrderStatus(c *gin.Context) {
 		return
 	}
 
-	var workOrder models.WorkOrder
+	var workOrder store.WorkOrder
 	if err := store.GetDB().First(&workOrder, input.WorkOrderID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "工单不存在"})
 		return
 	}
 
-	if input.Status != string(models.WorkOrderInProcess) && input.Status != string(models.WorkOrderCompleted) {
+	if input.Status != string(store.WorkOrderInProcess) && input.Status != string(store.WorkOrderCompleted) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "非法状态"})
 		return
 	}
 
-	workOrder.Status = models.WorkOrderStatus(input.Status)
+	workOrder.Status = store.WorkOrderStatus(input.Status)
 	store.GetDB().Save(&workOrder)
 
 	c.JSON(http.StatusOK, gin.H{"message": "工单状态已更新"})
