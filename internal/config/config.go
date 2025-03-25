@@ -2,10 +2,17 @@ package config
 
 import (
 	"fmt"
+	"time"
 	//"gopkg.in/yaml.v2"
 	"os"
 
 	"gopkg.in/yaml.v3"
+)
+
+var (
+	RedisDB                             = 0
+	ProjectName           string        = "revolution-fiesta"
+	AccessTokenExpiration time.Duration = time.Hour / 4
 )
 
 type Config struct {

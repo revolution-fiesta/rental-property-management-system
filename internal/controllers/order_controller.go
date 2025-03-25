@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"net/http"
-	"rental-property-management-system/internal/database"
 	"rental-property-management-system/internal/models"
+	"rental-property-management-system/internal/store"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -24,7 +24,7 @@ func CreateOrder(c *gin.Context) {
 
 	// 获取房间信息，检查是否已租出去
 	var room models.Room
-	if err := database.DB.First(&room, request.RoomID).Error; err != nil {
+	if err := store.GetDB().First(&room, request.RoomID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "房间不存在"})
 		return
 	}
@@ -63,14 +63,14 @@ func CreateOrder(c *gin.Context) {
 	}
 
 	// 保存订单到数据库
-	if err := database.DB.Create(&order).Error; err != nil {
+	if err := store.GetDB().Create(&order).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "创建订单失败"})
 		return
 	}
 
 	// 更新房间状态为已租
 	room.IsDeleted = true
-	database.DB.Save(&room)
+	store.GetDB().Save(&room)
 
 	// 返回订单详情
 	c.JSON(http.StatusOK, gin.H{
@@ -88,7 +88,7 @@ func GenerateMonthlyOrders(c *gin.Context) {
 	now := time.Now()
 	// 查询所有正在租赁的订单
 	var activeOrders []models.Order
-	if err := database.DB.Where("status = ?", models.Completed).Find(&activeOrders).Error; err != nil {
+	if err := store.GetDB().Where("status = ?", models.Completed).Find(&activeOrders).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询订单失败"})
 		return
 	}
@@ -97,7 +97,7 @@ func GenerateMonthlyOrders(c *gin.Context) {
 
 	for _, order := range activeOrders {
 		var room models.Room
-		if err := database.DB.First(&room, order.RoomID).Error; err != nil {
+		if err := store.GetDB().First(&room, order.RoomID).Error; err != nil {
 			continue
 		}
 
@@ -117,7 +117,7 @@ func GenerateMonthlyOrders(c *gin.Context) {
 
 	// 批量插入订单
 	if len(newOrders) > 0 {
-		if err := database.DB.Create(&newOrders).Error; err != nil {
+		if err := store.GetDB().Create(&newOrders).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "批量创建订单失败"})
 			return
 		}
@@ -139,7 +139,7 @@ func PayOrder(c *gin.Context) {
 
 	// 查找订单
 	var order models.Order
-	if err := database.DB.First(&order, request.OrderID).Error; err != nil {
+	if err := store.GetDB().First(&order, request.OrderID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
 		return
 	}
@@ -151,27 +151,27 @@ func PayOrder(c *gin.Context) {
 
 	// 更新订单状态
 	order.Status = models.Completed
-	if err := database.DB.Save(&order).Error; err != nil {
+	if err := store.GetDB().Save(&order).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update order status"})
 		return
 	}
 
 	// 获取房间信息，并更新状态为已租出
 	var room models.Room
-	if err := database.DB.First(&room, order.RoomID).Error; err != nil {
+	if err := store.GetDB().First(&room, order.RoomID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Room not found"})
 		return
 	}
 
 	room.IsDeleted = true // 表示已租
-	if err := database.DB.Save(&room).Error; err != nil {
+	if err := store.GetDB().Save(&room).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update room status"})
 		return
 	}
 
 	// 按房间数量最少的管理员分配
 	var admin models.User
-	if err := database.DB.Where("role = ?", "admin").
+	if err := store.GetDB().Where("role = ?", "admin").
 		Order("room_count ASC").
 		First(&admin).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No available admin"})
@@ -185,14 +185,14 @@ func PayOrder(c *gin.Context) {
 		RoomID:  order.RoomID,
 	}
 
-	if err := database.DB.Create(&relationship).Error; err != nil {
+	if err := store.GetDB().Create(&relationship).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create relationship"})
 		return
 	}
 
 	// 更新管理员所管房间数量
 	admin.ManagedRooms++
-	if err := database.DB.Save(&admin).Error; err != nil {
+	if err := store.GetDB().Save(&admin).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update admin room count"})
 		return
 	}
@@ -217,7 +217,7 @@ func CancelRental(c *gin.Context) {
 
 	// 查询 relationship 关系表，找到对应的记录
 	var relationship models.Relationship
-	if err := database.DB.
+	if err := store.GetDB().
 		Where("user_id = ? AND room_id = ?", request.UserID, request.RoomID).
 		First(&relationship).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Rental relationship not found"})
@@ -226,14 +226,14 @@ func CancelRental(c *gin.Context) {
 
 	// 查询房间信息
 	var room models.Room
-	if err := database.DB.First(&room, request.RoomID).Error; err != nil {
+	if err := store.GetDB().First(&room, request.RoomID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Room not found"})
 		return
 	}
 
 	// 查询管理员信息
 	var admin models.User
-	if err := database.DB.First(&admin, relationship.AdminID).Error; err != nil {
+	if err := store.GetDB().First(&admin, relationship.AdminID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Admin not found"})
 		return
 	}
@@ -246,14 +246,14 @@ func CancelRental(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Deposit refund initiated", "refund_amount": refundAmount})
 
 	// 删除 relationship 表中的记录
-	if err := database.DB.Delete(&relationship).Error; err != nil {
+	if err := store.GetDB().Delete(&relationship).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete relationship"})
 		return
 	}
 
 	// 更新房间状态为未租出
 	room.IsDeleted = false
-	if err := database.DB.Save(&room).Error; err != nil {
+	if err := store.GetDB().Save(&room).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update room status"})
 		return
 	}
@@ -262,7 +262,7 @@ func CancelRental(c *gin.Context) {
 	if admin.ManagedRooms > 0 {
 		admin.ManagedRooms--
 	}
-	if err := database.DB.Save(&admin).Error; err != nil {
+	if err := store.GetDB().Save(&admin).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update admin room count"})
 		return
 	}

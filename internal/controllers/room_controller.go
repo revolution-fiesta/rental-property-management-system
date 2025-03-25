@@ -1,30 +1,33 @@
 package controllers
 
 import (
-	"net/http"
-	"rental-property-management-system/internal/database"
-	"rental-property-management-system/internal/models"
-	"gorm.io/gorm"
-	"github.com/gin-gonic/gin"
 	"fmt"
+	"net/http"
+	"rental-property-management-system/internal/models"
+	"rental-property-management-system/internal/store"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
+
 // 初始化房间数据
 func InitRoomData() {
 	rooms := []models.Room{
-		{Type: models.TwoBedroom, Quantity: 311, Price: 5000},   // 两房一厅
-		{Type: models.OneBedroom, Quantity: 605, Price: 3500},   // 一房一厅
-		{Type: models.SingleRoom, Quantity: 505, Price: 2000},   // 单间
+		{Type: models.TwoBedroom, Quantity: 311, Price: 5000}, // 两房一厅
+		{Type: models.OneBedroom, Quantity: 605, Price: 3500}, // 一房一厅
+		{Type: models.SingleRoom, Quantity: 505, Price: 2000}, // 单间
 	}
 
 	for _, room := range rooms {
-		database.DB.FirstOrCreate(&room, models.Room{Type: room.Type})
+		store.GetDB().FirstOrCreate(&room, models.Room{Type: room.Type})
 	}
 }
+
 // 获取可用的房间
 func GetAvailableRooms(c *gin.Context) {
 	var rooms []models.Room
 
-	result := database.DB.Where("is_deleted = ?", false).Find(&rooms)
+	result := store.GetDB().Where("is_deleted = ?", false).Find(&rooms)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database query failed"})
 		return
@@ -32,11 +35,12 @@ func GetAvailableRooms(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"data": rooms})
 }
+
 // 选择房间
 func selectRoom(c *gin.Context) {
 	type RoomSelection struct {
 		RoomType models.RoomType `json:"room_type" binding:"required"`
-		Quantity int      `json:"quantity" binding:"required"`
+		Quantity int             `json:"quantity" binding:"required"`
 	}
 
 	var selection RoomSelection
@@ -50,14 +54,14 @@ func selectRoom(c *gin.Context) {
 	var room models.Room
 
 	// 根据房间类型和库存筛选房间
-	if err := database.DB.First(&room, "type = ? AND is_deleted = ? AND quantity >= ?", selection.RoomType, false, selection.Quantity).Error; err != nil {
+	if err := store.GetDB().First(&room, "type = ? AND is_deleted = ? AND quantity >= ?", selection.RoomType, false, selection.Quantity).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "房间类型不可用或库存不足"})
 		return
 	}
 
 	// 更新房间数量
 	room.Quantity -= selection.Quantity
-	if err := database.DB.Save(&room).Error; err != nil {
+	if err := store.GetDB().Save(&room).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "无法更新房间库存"})
 		return
 	}
@@ -67,6 +71,7 @@ func selectRoom(c *gin.Context) {
 		"room":    room,
 	})
 }
+
 // 管理员更新房间的信息
 func UpdateRoomInfo(c *gin.Context) {
 	// 通过中间件获取管理员权限
@@ -96,7 +101,7 @@ func UpdateRoomInfo(c *gin.Context) {
 
 	// 查找房间
 	var room models.Room
-	err := database.DB.First(&room, request.RoomID).Error
+	err := store.GetDB().First(&room, request.RoomID).Error
 
 	// 如果找不到房间，则创建新的房间
 	if err != nil && err == gorm.ErrRecordNotFound {
@@ -108,7 +113,7 @@ func UpdateRoomInfo(c *gin.Context) {
 			Tags:      *request.Tags,
 			Area:      *request.Area,
 		}
-		if err := database.DB.Create(&room).Error; err != nil {
+		if err := store.GetDB().Create(&room).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create room"})
 			return
 		}
@@ -137,7 +142,7 @@ func UpdateRoomInfo(c *gin.Context) {
 	}
 
 	// 更新数据库
-	if err := database.DB.Save(&room).Error; err != nil {
+	if err := store.GetDB().Save(&room).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update room"})
 		return
 	}
@@ -147,12 +152,13 @@ func UpdateRoomInfo(c *gin.Context) {
 		"room":    room,
 	})
 }
+
 // 查询所有房间接口
 func GetAllRooms(c *gin.Context) {
 	var rooms []models.Room
 
 	// 查询所有房间数据
-	if err := database.DB.Find(&rooms).Error; err != nil {
+	if err := store.GetDB().Find(&rooms).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve rooms"})
 		return
 	}
@@ -162,6 +168,7 @@ func GetAllRooms(c *gin.Context) {
 		"rooms": rooms,
 	})
 }
+
 // 查询房间信息，支持多个过滤条件
 func GetFilteredRooms(c *gin.Context) {
 	// 获取查询参数
@@ -169,11 +176,11 @@ func GetFilteredRooms(c *gin.Context) {
 	priceMax := c.DefaultQuery("price_max", "1000000000")
 	roomType := c.DefaultQuery("type", "")
 	orientation := c.DefaultQuery("orientation", "")
-	areaMin := c.DefaultQuery("area_min", "0")  // 占地面积最小值
+	areaMin := c.DefaultQuery("area_min", "0")          // 占地面积最小值
 	areaMax := c.DefaultQuery("area_max", "1000000000") // 占地面积最大值
 
 	var rooms []models.Room
-	query := database.DB
+	query := store.GetDB()
 
 	// 按房价范围过滤
 	query = query.Where("price >= ? AND price <= ?", priceMin, priceMax)
@@ -202,4 +209,3 @@ func GetFilteredRooms(c *gin.Context) {
 		"rooms": rooms,
 	})
 }
-

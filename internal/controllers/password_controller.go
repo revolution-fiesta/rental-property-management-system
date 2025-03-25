@@ -3,11 +3,12 @@ package controllers
 import (
 	"math/rand"
 	"net/http"
-	"time"
-	"rental-property-management-system/internal/database"
-	"rental-property-management-system/internal/models"
-	"github.com/gin-gonic/gin"
 	"regexp"
+	"rental-property-management-system/internal/models"
+	"rental-property-management-system/internal/store"
+	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GenerateTempPassword(c *gin.Context) {
@@ -27,13 +28,13 @@ func GenerateTempPassword(c *gin.Context) {
 		ExpiresAt: time.Now().Add(120 * time.Minute),
 	}
 
-	if err := database.DB.Create(&password).Error; err != nil {
+	if err := store.GetDB().Create(&password).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create password"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"password":    password.Password,
+		"password":   password.Password,
 		"expires_at": password.ExpiresAt,
 	})
 }
@@ -47,11 +48,12 @@ func generateRandomPassword(length int) string {
 	}
 	return string(b)
 }
+
 // 修改房间密码
 func changeRoomPassword(c *gin.Context) {
 	// 请求结构体定义
 	var request struct {
-		RoomID   uint   `json:"room_id" binding:"required"`
+		RoomID      uint   `json:"room_id" binding:"required"`
 		OldPassword string `json:"old_password" binding:"required"`
 		NewPassword string `json:"new_password" binding:"required"`
 	}
@@ -70,7 +72,7 @@ func changeRoomPassword(c *gin.Context) {
 
 	// 查询该房间的临时密码记录
 	var password models.Password
-	if err := database.DB.First(&password, "room_id = ? AND is_temp = ?", request.RoomID, true).Error; err != nil {
+	if err := store.GetDB().First(&password, "room_id = ? AND is_temp = ?", request.RoomID, true).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Room not found or no temporary password available"})
 		return
 	}
@@ -86,15 +88,15 @@ func changeRoomPassword(c *gin.Context) {
 	password.ExpiresAt = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC) // 设置密码有效期为永久
 
 	// 保存更新后的密码
-	if err := database.DB.Save(&password).Error; err != nil {
+	if err := store.GetDB().Save(&password).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":    "Password updated successfully",
+		"message":      "Password updated successfully",
 		"new_password": password.Password,
-		"expires_at": password.ExpiresAt,
+		"expires_at":   password.ExpiresAt,
 	})
 }
 

@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"net/http"
-	"rental-property-management-system/internal/database"
 	"rental-property-management-system/internal/models"
+	"rental-property-management-system/internal/store"
 
 	"github.com/gin-gonic/gin"
 )
+
 // 创建工单
 func CreateWorkOrder(c *gin.Context) {
 	var input struct {
@@ -22,7 +23,7 @@ func CreateWorkOrder(c *gin.Context) {
 
 	// 确认房间和用户的绑定关系，找到对应的管理员
 	var relationship models.Relationship
-	if err := database.DB.Where("user_id = ? AND room_id = ?", input.UserID, input.RoomID).First(&relationship).Error; err != nil {
+	if err := store.GetDB().Where("user_id = ? AND room_id = ?", input.UserID, input.RoomID).First(&relationship).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "未找到租赁关系"})
 		return
 	}
@@ -36,13 +37,14 @@ func CreateWorkOrder(c *gin.Context) {
 		Status:  models.WorkOrderPending,
 	}
 
-	if err := database.DB.Create(&workOrder).Error; err != nil {
+	if err := store.GetDB().Create(&workOrder).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "工单创建失败"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "工单创建成功", "work_order": workOrder})
 }
+
 // 管理员查询待处理工单
 func GetWorkOrdersByAdmin(c *gin.Context) {
 	// 通过中间件获取管理员权限
@@ -55,13 +57,14 @@ func GetWorkOrdersByAdmin(c *gin.Context) {
 	}
 	adminID := c.Param("admin_id")
 	var workOrders []models.WorkOrder
-	if err := database.DB.Where("admin_id = ? AND status = ?", adminID, models.WorkOrderPending).Find(&workOrders).Error; err != nil {
+	if err := store.GetDB().Where("admin_id = ? AND status = ?", adminID, models.WorkOrderPending).Find(&workOrders).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询工单失败"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"work_orders": workOrders})
 }
+
 // 管理员处理完维修后，点击“完成工单”
 func UpdateWorkOrderStatus(c *gin.Context) {
 	// 通过中间件获取管理员权限
@@ -83,7 +86,7 @@ func UpdateWorkOrderStatus(c *gin.Context) {
 	}
 
 	var workOrder models.WorkOrder
-	if err := database.DB.First(&workOrder, input.WorkOrderID).Error; err != nil {
+	if err := store.GetDB().First(&workOrder, input.WorkOrderID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "工单不存在"})
 		return
 	}
@@ -94,9 +97,7 @@ func UpdateWorkOrderStatus(c *gin.Context) {
 	}
 
 	workOrder.Status = models.WorkOrderStatus(input.Status)
-	database.DB.Save(&workOrder)
+	store.GetDB().Save(&workOrder)
 
 	c.JSON(http.StatusOK, gin.H{"message": "工单状态已更新"})
 }
-
-
