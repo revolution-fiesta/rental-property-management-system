@@ -3,9 +3,10 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"rental-property-management-system/internal/models"
-	"rental-property-management-system/internal/store"
+
 	"rental-property-management-system/middleware"
+	"rental-property-management-system/models"
+	"rental-property-management-system/store"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"

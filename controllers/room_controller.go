@@ -3,25 +3,12 @@ package controllers
 import (
 	"fmt"
 	"net/http"
-	"rental-property-management-system/internal/models"
-	"rental-property-management-system/internal/store"
+	"rental-property-management-system/models"
+	"rental-property-management-system/store"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
-
-// 初始化房间数据
-func InitRoomData() {
-	rooms := []models.Room{
-		{Type: models.TwoBedroom, Quantity: 311, Price: 5000}, // 两房一厅
-		{Type: models.OneBedroom, Quantity: 605, Price: 3500}, // 一房一厅
-		{Type: models.SingleRoom, Quantity: 505, Price: 2000}, // 单间
-	}
-
-	for _, room := range rooms {
-		store.GetDB().FirstOrCreate(&room, models.Room{Type: room.Type})
-	}
-}
 
 // 获取可用的房间
 func GetAvailableRooms(c *gin.Context) {

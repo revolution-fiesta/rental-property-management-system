@@ -1,26 +1,29 @@
 package middleware
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
+	"log"
 	"net/http"
+	"rental-property-management-system/models"
 	"strings"
-	"rental-property-management-system/internal/models"
+
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	 "crypto/rand"
-    "encoding/base64"
-    "log"
 )
+
 func GenerateRandomKey() string {
-    // 生成 32 字节的随机密钥
-    secret := make([]byte, 32)
-    _, err := rand.Read(secret)
-    if err != nil {
-        log.Fatal("Failed to generate random key:", err)
-    }
-    // 将随机密钥编码为 Base64 字符串
-    return base64.StdEncoding.EncodeToString(secret)
+	// 生成 32 字节的随机密钥
+	secret := make([]byte, 32)
+	_, err := rand.Read(secret)
+	if err != nil {
+		log.Fatal("Failed to generate random key:", err)
+	}
+	// 将随机密钥编码为 Base64 字符串
+	return base64.StdEncoding.EncodeToString(secret)
 }
+
 var jwtSecret = []byte(GenerateRandomKey()) // JWT 秘钥
 
 // 解析 Token 并提取角色信息

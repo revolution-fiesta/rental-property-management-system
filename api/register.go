@@ -3,8 +3,8 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"rental-property-management-system/internal/models"
-	"rental-property-management-system/internal/store"
+	"rental-property-management-system/models"
+	"rental-property-management-system/store"
 
 	//"rental-property-management-system/middleware"
 

@@ -1,11 +1,10 @@
 package config
 
 import (
-	"fmt"
-	"time"
-	//"gopkg.in/yaml.v2"
 	"os"
+	"time"
 
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
 
@@ -13,6 +12,8 @@ var (
 	RedisDB                             = 0
 	ProjectName           string        = "revolution-fiesta"
 	AccessTokenExpiration time.Duration = time.Hour / 4
+	YamlConfigPath        string        = "../config.yaml"
+	AppConfig             Config
 )
 
 type Config struct {
@@ -48,18 +49,17 @@ type EsignConfig struct {
 	Secret string `yaml:"secret"`
 }
 
-var AppConfig Config
-
-func LoadConfig() {
-	file, err := os.Open("config/config.yaml")
+func LoadConfig() error {
+	file, err := os.Open(YamlConfigPath)
 	if err != nil {
-		panic(fmt.Sprintf("Error loading config: %v", err))
+		return errors.Wrapf(err, "error loading config")
 	}
 	defer file.Close()
 
 	decoder := yaml.NewDecoder(file)
 	err = decoder.Decode(&AppConfig)
 	if err != nil {
-		panic(fmt.Sprintf("Error decoding config: %v", err))
+		return errors.Wrapf(err, "Error decoding config")
 	}
+	return nil
 }
