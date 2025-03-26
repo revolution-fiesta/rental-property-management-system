@@ -15,7 +15,7 @@
   </view>
 <view style="display: flex;">
 
-  <FunctionItem style="position: relative; left: 0rpx; top: -51rpx" icon="/images/ui/admin.png" text="管理员入口" targetPage="/pages/settings/settings" />
+  <FunctionItem style="position: relative; left: 0rpx; top: -51rpx" icon="/images/ui/admin.png" bind:tap="handleLogin" text="管理员入口" targetPage="/pages/settings/settings" />
   </view>
 
 

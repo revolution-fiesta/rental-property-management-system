@@ -1,6 +1,8 @@
 server:
   port: "8080"
   env: "development"
+  crt: "tests/localhost.crt"
+  key: "tests/localhost.key"
 
 database:
   host: "localhost"
@@ -8,3 +10,7 @@ database:
   user: "postgres"
   password: "270153"
   name: "postgres"
+
+wechat:
+  app_id: "wx937c1c53ceabe38b"
+  app_secret: "d6f70201a6122847d24f64d3079a18c0"

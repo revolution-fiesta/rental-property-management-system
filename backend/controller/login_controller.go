@@ -1,21 +1,33 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
-	"math/rand"
+	"io"
 	"net/http"
+	"net/url"
 
 	"rental-property-management-system/backend/config"
 	"rental-property-management-system/backend/store"
 	"rental-property-management-system/backend/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 )
 
 // 登录接口
+type AuthMethod string
+
+const (
+	AuthMethodPlain  AuthMethod = "plain"
+	AuthMethodWechat AuthMethod = "wechat"
+)
+
 type LoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username   string `json:"username"`
+	Password   string `json:"password"`
+	AuthMethod string `json:"auth_method"`
+	OAuthCode  string `json:"code"`
 }
 
 func Login(c *gin.Context) {
@@ -27,17 +39,46 @@ func Login(c *gin.Context) {
 	}
 	// 检查用户名是否存在
 	var user store.User
-	if err := store.GetDB().Where("username = ?", reqeust.Username).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("User %q does not exist", reqeust.Username)})
-		c.Abort()
-		return
-	}
-
-	// 验证密码是否正确并生成
-	if user.PasswordHash != utils.Sha256(reqeust.Password, user.Salt) {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Wrong username or password"})
-		c.Abort()
-		return
+	// 微信登录
+	if reqeust.AuthMethod == string(AuthMethodWechat) {
+		openID, err := getWechatOpenID(reqeust.OAuthCode)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "failed to send oauth code"})
+			c.Abort()
+			return
+		}
+		// 如果该 OpenID 没有关联的账号，则创建新账号
+		if tx := store.GetDB().Where("open_id = ?", openID).Find(&user); tx.RowsAffected == 0 {
+			if err := store.CreateUser("", "", "", string(store.UserRoleMember), openID); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
+				c.Abort()
+				return
+			}
+		}
+		// 重新获取用户
+		if tx := store.GetDB().Where("open_id = ?", openID).Find(&user); tx.RowsAffected == 0 {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get user"})
+			c.Abort()
+			return
+		}
+		// 用户名密码登录
+	} else {
+		if reqeust.Username == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid username"})
+			c.Abort()
+			return
+		}
+		if err := store.GetDB().Where("username = ?", reqeust.Username).First(&user).Error; err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("User %q does not exist", reqeust.Username)})
+			c.Abort()
+			return
+		}
+		// 验证密码是否正确并生成
+		if user.PasswordHash != utils.Sha256(reqeust.Password, user.Salt) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Wrong username or password"})
+			c.Abort()
+			return
+		}
 	}
 
 	// 生成 access token
@@ -54,12 +95,45 @@ func Login(c *gin.Context) {
 	// 	return nil, err
 	// }
 
+	fmt.Println(token)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login successfully",
 		"token":   token,
 		// 返回用户角色，后续可以根据角色做权限验证
 		"role": user.Role,
 	})
+}
+
+type WechatOAuthResponse struct {
+	SessionKey string `json:"session_key"`
+	OpenID     string `json:"openid"`
+	UnionID    string `json:"unionid,omitempty"`
+}
+
+func getWechatOpenID(code string) (string, error) {
+	params := url.Values{
+		"appid":      {config.AppConfig.Wechat.AppID},
+		"secret":     {config.AppConfig.Wechat.AppSecret},
+		"js_code":    {code},
+		"grant_type": {"authorization_code"},
+	}
+	url := "https://api.weixin.qq.com/sns/jscode2session"
+	resp, err := http.Get(fmt.Sprintf("%s?%s", url, params.Encode()))
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to send oauth request")
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	var oauthResp WechatOAuthResponse
+	if err := json.Unmarshal(body, &oauthResp); err != nil {
+		return "", err
+	}
+
+	return oauthResp.OpenID, nil
 }
 
 // 注册用户接口
@@ -108,22 +182,8 @@ func register(c *gin.Context, role string) {
 		return
 	}
 
-	// 生成盐值与密码
-	salt := make([]byte, 16)
-	_, _ = rand.Read(salt)
-	saltString := fmt.Sprintf("%x", salt)
-	hashedPasswd := utils.Sha256(request.Password, saltString)
-
-	// 插入用户
-	newUser := store.User{
-		Username:     request.Username,
-		PasswordHash: hashedPasswd,
-		Email:        request.Email,
-		Role:         role,
-		Salt:         saltString,
-	}
-	if err := store.GetDB().Create(&newUser).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})
+	if err := store.CreateUser(request.Username, request.Password, request.Email, role, ""); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		c.Abort()
 		return
 	}

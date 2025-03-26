@@ -1,66 +1,39 @@
 // pages/Info/Info.js
 Page({
-
-  /**
-   * Page initial data
-   */
   data: {
-
+    token: ''
   },
 
-  /**
-   * Lifecycle function--Called when page load
-   */
-  onLoad(options) {
+  handleLogin() {
+    wx.login({
+      success(loginRes) {
+        if (!loginRes.code) {
+          console.error("登录失败:", loginRes.errMsg);
+          return;
+        }
+        console.log("成功获取 code:", loginRes.code);
 
-  },
-
-  /**
-   * Lifecycle function--Called when page is initially rendered
-   */
-  onReady() {
-
-  },
-
-  /**
-   * Lifecycle function--Called when page show
-   */
-  onShow() {
-
-  },
-
-  /**
-   * Lifecycle function--Called when page hide
-   */
-  onHide() {
-
-  },
-
-  /**
-   * Lifecycle function--Called when page unload
-   */
-  onUnload() {
-
-  },
-
-  /**
-   * Page event handler function--Called when user drop down
-   */
-  onPullDownRefresh() {
-
-  },
-
-  /**
-   * Called when page reach bottom
-   */
-  onReachBottom() {
-
-  },
-
-  /**
-   * Called when user click on the top right corner to share
-   */
-  onShareAppMessage() {
-
+        wx.request({
+          url: "http://127.0.0.1:8080/login",
+          method: "POST",
+          data: {
+            code: loginRes.code,
+            auth_method: "wechat",
+          },
+          header: {
+            "Content-Type": "application/json",
+          },
+          success(res) {
+            console.log("后端返回:", res.data);
+          },
+          fail(err) {
+            console.error("请求失败:", err);
+          }
+        });
+      },
+      fail(err) {
+        console.error("wx.login 失败:", err);
+      }
+    });
   }
-})
+});

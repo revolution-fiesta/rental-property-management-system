@@ -23,12 +23,13 @@ type Config struct {
 	Server   ServerConfig   `yaml:"server"`
 	Database DatabaseConfig `yaml:"database"`
 	Wechat   WechatConfig   `yaml:"wechat"`
-	Esign    EsignConfig    `yaml:"esign"`
 }
 
 type ServerConfig struct {
-	Port string `yaml:"port"`
-	Env  string `yaml:"env"`
+	Port        string `yaml:"port"`
+	Env         string `yaml:"env"`
+	CrtFilePath string `yaml:"crt"`
+	KeyFilePath string `yaml:"key"`
 }
 
 type DatabaseConfig struct {
@@ -41,15 +42,8 @@ type DatabaseConfig struct {
 }
 
 type WechatConfig struct {
-	AppID  string `yaml:"app_id"`
-	MchID  string `yaml:"mch_id"`
-	APIKey string `yaml:"api_key"`
-}
-
-type EsignConfig struct {
-	APIURL string `yaml:"api_url"`
-	AppID  string `yaml:"app_id"`
-	Secret string `yaml:"secret"`
+	AppID     string `yaml:"app_id"`
+	AppSecret string `yaml:"app_secret"`
 }
 
 func LoadConfig() error {
@@ -64,6 +58,7 @@ func LoadConfig() error {
 	if err != nil {
 		return errors.Wrapf(err, "Error decoding config")
 	}
+
 	return nil
 }
 

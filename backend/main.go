@@ -80,6 +80,8 @@ func main() {
 	// 启动服务器
 	go func() {
 		slog.Info(fmt.Sprintf("Server runs on port %s", config.AppConfig.Server.Port))
+		// crt :=config.AppConfig.Server.CrtFilePath
+		// key := config.AppConfig.Server.KeyFilePath
 		if err := server.ListenAndServe(); err != nil {
 			slog.Error("Server encounted an error")
 		}
