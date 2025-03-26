@@ -67,7 +67,6 @@ type RegisterRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Email    string `json:"email"`
-	Salt     string `json:"salt"`
 }
 
 // 普通用户注册接口
@@ -75,7 +74,9 @@ func Register(c *gin.Context) {
 	// NOTES: 判断是否已经有管理员, 如果没有管理员，第一位注册的用户自动成为管理员!
 	role := string(store.UserRoleMember)
 	var firstAdmin store.User
-	if err := store.GetDB().Where("role = ?", store.UserRoleAdmin).First(&firstAdmin).Error; err != nil && err.Error() == "record not found" {
+
+	result := store.GetDB().Where("role = ?", store.UserRoleAdmin).Find(&firstAdmin)
+	if result.RowsAffected == 0 {
 		role = string(store.UserRoleAdmin)
 	}
 	register(c, role)
@@ -100,7 +101,8 @@ func register(c *gin.Context, role string) {
 		return
 	}
 	var existingUser store.User
-	if err := store.GetDB().Where("username = ?", request.Username).First(&existingUser).Error; err == nil {
+	result := store.GetDB().Where("username = ?", request.Username).Find(&existingUser)
+	if result.RowsAffected > 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Username already exists"})
 		c.Abort()
 		return
