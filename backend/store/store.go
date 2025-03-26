@@ -48,6 +48,8 @@ func DelSession(ctx context.Context, session string) error {
 	return nil
 }
 
+// Used when user want to change token.
+// TODO: use this whenever you are implementing server session.
 func DeactivateAccessToken(ctx context.Context, token string) error {
 	if err := rdb.SAdd(ctx, redisKey(string(redisExpiredAccessToken)), token).Err(); err != nil {
 		return errors.Wrapf(err, fmt.Sprintf("failed to deactivate access token %q", token))

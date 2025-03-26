@@ -52,7 +52,7 @@ func main() {
 		return
 	}
 
-	// 生成服务器密钥
+	// 生成服务器验证的公私钥对
 	config.PrivateKey, err = utils.GeneratePrivateKey()
 	if err != nil {
 		slog.Error("failed to generate rsa key pairs")

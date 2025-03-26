@@ -2,190 +2,129 @@ package controller
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
 
-	"rental-property-management-system/backend/controller/middleware"
+	"rental-property-management-system/backend/config"
 	"rental-property-management-system/backend/store"
+	"rental-property-management-system/backend/utils"
 
-	"time"
-
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/argon2"
 )
 
-func verifyPassword(storedHash, password string) bool {
-	salt := []byte("some_random_salt") // 必须使用相同的盐值
-	hash := argon2.IDKey([]byte(password), salt, 1, 64*1024, 4, 32)
-	return fmt.Sprintf("%x", hash) == storedHash
-}
-
-// 生成 token 的例子
-func GenerateToken(username, role string) (string, error) {
-	// 创建 token
-	claims := jwt.MapClaims{
-		"username": username,
-		"role":     role,
-		"exp":      time.Now().Add(time.Hour * 72).Unix(), // token 过期时间（设置为 72 小时后过期）
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	// 使用密钥生成 token
-	jwtSecret := []byte(middleware.GenerateRandomKey())
-	tokenString, err := token.SignedString(jwtSecret)
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, nil
-}
-
 // 登录接口
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 func Login(c *gin.Context) {
-	var loginData struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
-
-	if err := c.ShouldBindJSON(&loginData); err != nil {
+	var reqeust LoginRequest
+	if err := c.ShouldBindJSON(&reqeust); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.Abort()
 		return
 	}
-
+	// 检查用户名是否存在
 	var user store.User
-	if err := store.GetDB().Where("username = ?", loginData.Username).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username"})
+	if err := store.GetDB().Where("username = ?", reqeust.Username).First(&user).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("User %q does not exist", reqeust.Username)})
+		c.Abort()
 		return
 	}
 
-	// 验证密码
-	if !verifyPassword(user.Password, loginData.Password) {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password"})
+	// 验证密码是否正确并生成
+	if user.PasswordHash != utils.Sha256(reqeust.Password, user.Salt) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Wrong username or password"})
+		c.Abort()
 		return
 	}
 
-	// 生成JWT token
-	token, err := GenerateToken(user.Username, user.Role)
+	// 生成 access token
+	token, err := utils.GenerateAccessToken(int(user.ID), config.PrivateKey)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
+		c.Abort()
 		return
 	}
+
+	// TODO: 如果需要登陆状态的话
+	// sessionId := uuid.NewString()
+	// if err := store.SetSession(ctx, strconv.Itoa(user.Id), []byte(sessionId)); err != nil {
+	// 	return nil, err
+	// }
+
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Login successful",
+		"message": "Login successfully",
 		"token":   token,
-		"role":    user.Role, // 返回用户角色，后续可以根据角色做权限验证
+		// 返回用户角色，后续可以根据角色做权限验证
+		"role": user.Role,
 	})
 }
 
-func hashPassword(password string) (string, error) {
-	salt := []byte("some_random_salt")                              // 可以使用更复杂的盐值
-	hash := argon2.IDKey([]byte(password), salt, 1, 64*1024, 4, 32) // 生成哈希值
-	return fmt.Sprintf("%x", hash), nil
-}
-
 // 注册用户接口
-func Register(c *gin.Context) {
-	var user store.User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// 判断是否已经有管理员
-	var firstAdmin store.User
-	if err := store.GetDB().Where("role = ?", "admin").First(&firstAdmin).Error; err != nil && err.Error() == "record not found" {
-		// 如果没有管理员，第一位注册的用户自动成为管理员
-		user.Role = "admin"
-	} else {
-		user.Role = "user" // 默认普通用户
-	}
-
-	// 检查用户名是否已存在
-	var existingUser store.User
-	if err := store.GetDB().Where("username = ?", user.Username).First(&existingUser).Error; err == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Username already exists"})
-		return
-	}
-
-	// 密码加密
-	hashedPassword, err := hashPassword(user.Password)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
-		return
-	}
-
-	user.Password = hashedPassword
-
-	// 插入用户
-	if err := store.GetDB().Create(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "User registered successfully"})
+type RegisterRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
+	Salt     string `json:"salt"`
 }
 
-// 管理员注册函数
+// 普通用户注册接口
+func Register(c *gin.Context) {
+	// NOTES: 判断是否已经有管理员, 如果没有管理员，第一位注册的用户自动成为管理员!
+	role := string(store.UserRoleMember)
+	var firstAdmin store.User
+	if err := store.GetDB().Where("role = ?", store.UserRoleAdmin).First(&firstAdmin).Error; err != nil && err.Error() == "record not found" {
+		role = string(store.UserRoleAdmin)
+	}
+	register(c, role)
+}
+
+// 管理员注册接口
 func RegisterAdmin(c *gin.Context) {
-	// 通过中间件获取管理员权限
-	user, _ := c.Get("user") // 获取用户信息
+	register(c, string(store.UserRoleAdmin))
+}
 
-	// 确认用户为管理员
-	if user == nil || user.(*store.User).Role != "admin" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have admin privileges"})
-		return
-	}
-	var request struct {
-		Username string `json:"username" binding:"required"`
-		Password string `json:"password" binding:"required"`
-		Email    string `json:"email" binding:"required"`
-	}
-
-	// 绑定请求数据
+func register(c *gin.Context, role string) {
+	var request RegisterRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// // 解析请求中的 Token
-	// user, err := middleware.ParseToken(c)
-	// if err != nil {
-	// 	c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-	// 	return
-	// }
-
-	// // 根据角色判断是否是管理员
-	// if user.Role != "admin" {
-	// 	c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-	// 	return
-	// }
-
-	// 检查用户名是否已存在
+	// 检查用户名是否不合法或已存在
+	if err := utils.CheckUsername(request.Username); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid username"})
+		c.Abort()
+		return
+	}
 	var existingUser store.User
 	if err := store.GetDB().Where("username = ?", request.Username).First(&existingUser).Error; err == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Username already exists"})
+		c.Abort()
 		return
 	}
 
-	// 密码加密
-	hashedPassword, err := hashPassword(request.Password)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+	// 生成盐值与密码
+	salt := make([]byte, 16)
+	_, _ = rand.Read(salt)
+	saltString := fmt.Sprintf("%x", salt)
+	hashedPasswd := utils.Sha256(request.Password, saltString)
+
+	// 插入用户
+	newUser := store.User{
+		Username:     request.Username,
+		PasswordHash: hashedPasswd,
+		Email:        request.Email,
+		Role:         role,
+		Salt:         saltString,
+	}
+	if err := store.GetDB().Create(&newUser).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})
+		c.Abort()
 		return
 	}
 
-	// 创建管理员用户
-	newAdmin := store.User{
-		Username: request.Username,
-		Password: hashedPassword,
-		Email:    request.Email,
-		Role:     "admin", // 设置角色为 admin
-	}
-
-	if err := store.GetDB().Create(&newAdmin).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create admin user"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "Admin user registered successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "User registered successfully"})
 }

@@ -1,88 +1,47 @@
 package middleware
 
 import (
-	"crypto/rand"
-	"encoding/base64"
-	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
+	"rental-property-management-system/backend/config"
 	"rental-property-management-system/backend/store"
+	"rental-property-management-system/backend/utils"
 	"strings"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
-func GenerateRandomKey() string {
-	// 生成 32 字节的随机密钥
-	secret := make([]byte, 32)
-	_, err := rand.Read(secret)
-	if err != nil {
-		log.Fatal("Failed to generate random key:", err)
-	}
-	// 将随机密钥编码为 Base64 字符串
-	return base64.StdEncoding.EncodeToString(secret)
-}
+const GinContextKeyUser string = "user"
 
-var jwtSecret = []byte(GenerateRandomKey()) // JWT 秘钥
-
-// 解析 Token 并提取角色信息
-func ParseToken(c *gin.Context) (*store.User, error) {
-	// 从请求头获取 token
-	tokenString := c.GetHeader("Authorization")
-	if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
-		return nil, fmt.Errorf("authorization token missing or invalid")
-	}
-
-	tokenString = tokenString[7:] // 去掉 "Bearer " 前缀
-
-	// 解析 token
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// 确保使用的是 HMAC 签名算法
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return jwtSecret, nil
-	})
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse token: %v", err)
-	}
-
-	// 获取 Claims 中的用户信息
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		username := claims["username"].(string)
-		role := claims["role"].(string)
-
-		// 返回用户信息
-		return &store.User{
-			Username: username,
-			Role:     role,
-		}, nil
-	}
-
-	return nil, fmt.Errorf("invalid token")
-}
-
-// 仅管理员访问的中间件
-func AdminRequired() gin.HandlerFunc {
+// 验证用户身份的中间件
+func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		user, err := ParseToken(c)
+		// 从请求头获取 token
+		tokenString := c.GetHeader("Authorization")
+		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing token"})
+			c.Abort()
+			return
+		}
+
+		// 用 [7:] 去掉 "Bearer " 前缀
+		userId, err := utils.ValidateAccessToken(tokenString[7:], &config.PrivateKey.PublicKey)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or missing token"})
+			slog.Error(err.Error())
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.Abort()
+			return
+		}
+		// 根据 ID 从数据库查询用户
+		var user store.User
+		if err := store.GetDB().First(&user, userId); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error})
 			c.Abort()
 			return
 		}
 
-		// 验证角色是否为管理员
-		if user.Role != "admin" {
-			c.JSON(http.StatusForbidden, gin.H{"error": "You do not have admin privileges"})
-			c.Abort()
-			return
-		}
-
-		// 将用户信息传递给后续处理程序
-		c.Set("user", user)
+		// 将用户 ID 传递给后续处理程序
+		c.Set(GinContextKeyUser, user)
 		c.Next()
 	}
 }
