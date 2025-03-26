@@ -34,8 +34,8 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 		// 根据 ID 从数据库查询用户
 		var user store.User
-		if err := store.GetDB().First(&user, userId); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error})
+		if err := store.GetDB().First(&user, userId).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			c.Abort()
 			return
 		}

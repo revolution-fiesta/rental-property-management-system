@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log/slog"
 	"net/http"
 	"rental-property-management-system/backend/store"
 
@@ -20,8 +19,7 @@ func AdminMiddleware() gin.HandlerFunc {
 		// 类型转换
 		user, ok := userAny.(store.User)
 		if !ok {
-			slog.Error("failed to convert any to store.User")
-			c.JSON(http.StatusInternalServerError, gin.H{})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to convert any to store.User"})
 			c.Abort()
 			return
 		}
