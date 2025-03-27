@@ -33,8 +33,7 @@ type LoginRequest struct {
 func Login(c *gin.Context) {
 	var reqeust LoginRequest
 	if err := c.ShouldBindJSON(&reqeust); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		c.Abort()
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	// 检查用户名是否存在
@@ -43,40 +42,34 @@ func Login(c *gin.Context) {
 	if reqeust.AuthMethod == string(AuthMethodWechat) {
 		openID, err := getWechatOpenID(reqeust.OAuthCode)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "failed to send oauth code"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "failed to send oauth code"})
 			return
 		}
 		// 如果该 OpenID 没有关联的账号，则创建新账号
 		if tx := store.GetDB().Where("open_id = ?", openID).Find(&user); tx.RowsAffected == 0 {
 			if err := store.CreateUser("", "", "", string(store.UserRoleMember), openID); err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
-				c.Abort()
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
 				return
 			}
 		}
 		// 重新获取用户
 		if tx := store.GetDB().Where("open_id = ?", openID).Find(&user); tx.RowsAffected == 0 {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get user"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to get user"})
 			return
 		}
 		// 用户名密码登录
 	} else {
 		if reqeust.Username == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid username"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid username"})
 			return
 		}
 		if err := store.GetDB().Where("username = ?", reqeust.Username).First(&user).Error; err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("User %q does not exist", reqeust.Username)})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("User %q does not exist", reqeust.Username)})
 			return
 		}
 		// 验证密码是否正确并生成
 		if user.PasswordHash != utils.Sha256(reqeust.Password, user.Salt) {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Wrong username or password"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Wrong username or password"})
 			return
 		}
 	}
@@ -84,8 +77,7 @@ func Login(c *gin.Context) {
 	// 生成 access token
 	token, err := utils.GenerateAccessToken(int(user.ID), config.PrivateKey)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
-		c.Abort()
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
 		return
 	}
 
@@ -95,7 +87,6 @@ func Login(c *gin.Context) {
 	// 	return nil, err
 	// }
 
-	fmt.Println(token)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login successfully",
 		"token":   token,
@@ -164,27 +155,24 @@ func RegisterAdmin(c *gin.Context) {
 func register(c *gin.Context, role string) {
 	var request RegisterRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	// 检查用户名是否不合法或已存在
 	if err := utils.CheckUsername(request.Username); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid username"})
-		c.Abort()
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid username"})
 		return
 	}
 	var existingUser store.User
 	result := store.GetDB().Where("username = ?", request.Username).Find(&existingUser)
 	if result.RowsAffected > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Username already exists"})
-		c.Abort()
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Username already exists"})
 		return
 	}
 
 	if err := store.CreateUser(request.Username, request.Password, request.Email, role, ""); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		c.Abort()
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

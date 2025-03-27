@@ -15,7 +15,7 @@ func GetAvailableRooms(c *gin.Context) {
 
 	result := store.GetDB().Where("is_deleted = ?", false).Find(&rooms)
 	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database query failed"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Database query failed"})
 		return
 	}
 
@@ -23,7 +23,7 @@ func GetAvailableRooms(c *gin.Context) {
 }
 
 // 选择房间
-func selectRoom(c *gin.Context) {
+func SelectRoom(c *gin.Context) {
 	type RoomSelection struct {
 		RoomType store.RoomType `json:"room_type" binding:"required"`
 		Quantity int            `json:"quantity" binding:"required"`
@@ -33,7 +33,7 @@ func selectRoom(c *gin.Context) {
 
 	// 解析用户请求的房间类型和数量
 	if err := c.ShouldBindJSON(&selection); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的请求数据"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "无效的请求数据"})
 		return
 	}
 
@@ -41,7 +41,7 @@ func selectRoom(c *gin.Context) {
 
 	// 根据房间类型和库存筛选房间
 	if err := store.GetDB().First(&room, "type = ? AND is_deleted = ? AND quantity >= ?", selection.RoomType, false, selection.Quantity).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "房间类型不可用或库存不足"})
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "房间类型不可用或库存不足"})
 		return
 	}
 
@@ -65,7 +65,7 @@ func UpdateRoomInfo(c *gin.Context) {
 
 	// 确认用户为管理员
 	if user == nil || user.(*store.User).Role != "admin" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have admin privileges"})
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "You do not have admin privileges"})
 		return
 	}
 
@@ -88,7 +88,6 @@ func UpdateRoomInfo(c *gin.Context) {
 	// 查找房间
 	var room store.Room
 	err := store.GetDB().First(&room, request.RoomID).Error
-
 	// 如果找不到房间，则创建新的房间
 	if err != nil && err == gorm.ErrRecordNotFound {
 		// 房间不存在，创建新房间
@@ -100,7 +99,7 @@ func UpdateRoomInfo(c *gin.Context) {
 			Area:      *request.Area,
 		}
 		if err := store.GetDB().Create(&room).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create room"})
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create room"})
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{
@@ -145,7 +144,7 @@ func GetAllRooms(c *gin.Context) {
 
 	// 查询所有房间数据
 	if err := store.GetDB().Find(&rooms).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve rooms"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve rooms"})
 		return
 	}
 
@@ -186,7 +185,7 @@ func GetFilteredRooms(c *gin.Context) {
 
 	// 查询符合条件的房间数据
 	if err := query.Find(&rooms).Error; err != nil && err != gorm.ErrRecordNotFound {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve rooms"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve rooms"})
 		return
 	}
 
