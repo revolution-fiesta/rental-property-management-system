@@ -11,8 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const GinContextKeyUser string = "user"
-
 // 验证用户身份的中间件
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {

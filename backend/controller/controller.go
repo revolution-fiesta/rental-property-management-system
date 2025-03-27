@@ -16,7 +16,8 @@ func ConfigRouter(r *gin.Engine) {
 	// 需要身份认证的路由
 	authRoutes := r.Group("/", middleware.AuthMiddleware())
 	authRoutes.POST("/room", UpdateRoomInfo)
-	authRoutes.POST("/select-room", SelectRoom)
+	authRoutes.POST("/create-order", RentRoom)
+	authRoutes.POST("/pay-order", PayOrder)
 
 	// 需要管理员权限的路由
 	adminRoutes := authRoutes.Group("/", middleware.AdminMiddleware())

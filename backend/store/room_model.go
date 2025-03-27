@@ -9,9 +9,9 @@ type RoomType string
 // B: Bedroom.
 // L: Living room.
 const (
-	B2L1 RoomType = "b2l1"
-	B1L1 RoomType = "b1l1"
-	B1   RoomType = "b1"
+	RoomTypeB2L1 RoomType = "b2l1"
+	RoomTypeB1L1 RoomType = "b1l1"
+	RoomTypeB1   RoomType = "b1"
 )
 
 type Room struct {

@@ -16,7 +16,7 @@ func GenerateTempPassword(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
 
@@ -28,7 +28,7 @@ func GenerateTempPassword(c *gin.Context) {
 	}
 
 	if err := store.GetDB().Create(&password).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create password"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create password"})
 		return
 	}
 
@@ -59,7 +59,7 @@ func changeRoomPassword(c *gin.Context) {
 
 	// 解析请求数据
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
 		return
 	}
 
@@ -72,13 +72,13 @@ func changeRoomPassword(c *gin.Context) {
 	// 查询该房间的临时密码记录
 	var password store.Password
 	if err := store.GetDB().First(&password, "room_id = ? AND is_temp = ?", request.RoomID, true).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Room not found or no temporary password available"})
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Room not found or no temporary password available"})
 		return
 	}
 
 	// 验证旧密码
 	if password.Password != request.OldPassword {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Old password is incorrect"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Old password is incorrect"})
 		return
 	}
 
@@ -88,7 +88,7 @@ func changeRoomPassword(c *gin.Context) {
 
 	// 保存更新后的密码
 	if err := store.GetDB().Save(&password).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
 		return
 	}
 

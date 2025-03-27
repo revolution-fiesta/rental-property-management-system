@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	"rental-property-management-system/backend/controller/middleware"
 	"rental-property-management-system/backend/store"
 
 	"time"
@@ -11,28 +12,38 @@ import (
 )
 
 // 创建订单的接口
-func CreateOrder(c *gin.Context) {
-	var request struct {
-		UserID uint `json:"user_id"`
-		RoomID uint `json:"room_id"`
-	}
+type CreateOrderRequest struct {
+	RoomID uint `json:"room_id"`
+}
 
+func RentRoom(c *gin.Context) {
+	user, err := middleware.GetUserFromContext(c)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+	var request CreateOrderRequest
 	// 获取前端传来的数据
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	// 获取房间信息，检查是否已租出去
 	var room store.Room
-	if err := store.GetDB().First(&room, request.RoomID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "房间不存在"})
+	tx := store.GetDB().Find(&room, request.RoomID)
+	if tx.Error != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": tx.Error.Error()})
+		return
+	}
+	if tx.RowsAffected != 1 {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Room does not exist"})
 		return
 	}
 
 	// 检查房间是否已被租出去
 	if room.Available {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "该房间已出租"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": " The room has been rented"})
 		return
 	}
 
@@ -51,31 +62,35 @@ func CreateOrder(c *gin.Context) {
 	// 计算押金（2 个月）
 	deposit := 2 * room.Price
 
-	// 计算签约时需要支付的费用
+	// 合计租金
 	totalInitialPayment := currentMonthRent + deposit
 
 	// 创建订单
 	order := store.Order{
-		UserID:     request.UserID,
-		RoomID:     request.RoomID,
-		Status:     store.Pending, // 订单状态：待支付
-		TotalPrice: totalInitialPayment,
-		//StartDate:  now, // 记录租赁开始时间
+		UserID: user.ID,
+		RoomID: request.RoomID,
+		// 订单状态：待支付
+		Status:     store.Pending,
+		TotalPrice: currentMonthRent + deposit,
 	}
 
 	// 保存订单到数据库
 	if err := store.GetDB().Create(&order).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "创建订单失败"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "创建订单失败"})
 		return
 	}
 
 	// 更新房间状态为已租
+	// TODO: concurrency problems
 	room.Available = true
-	store.GetDB().Save(&room)
+	if err := store.GetDB().Save(&room).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to update room status"})
+		return
+	}
 
 	// 返回订单详情
 	c.JSON(http.StatusOK, gin.H{
-		"message":       "订单创建成功，请支付租金和押金",
+		"message":       "Order created successfully",
 		"order_id":      order.ID,
 		"current_rent":  currentMonthRent,
 		"deposit":       deposit,
@@ -84,7 +99,7 @@ func CreateOrder(c *gin.Context) {
 }
 
 // 生成每月月结订单
-// 生成月结订单
+// TODO:
 func GenerateMonthlyOrders(c *gin.Context) {
 	now := time.Now()
 	// 查询所有正在租赁的订单
@@ -128,32 +143,33 @@ func GenerateMonthlyOrders(c *gin.Context) {
 }
 
 // 支付订单接口
+type PayOrderRequest struct {
+	OrderID uint `json:"order_id"`
+}
+
 func PayOrder(c *gin.Context) {
-	var request struct {
-		OrderID uint `json:"order_id"`
-	}
+	var request PayOrderRequest
 
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	// 查找订单
 	var order store.Order
-	if err := store.GetDB().First(&order, request.OrderID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
+	if err := store.GetDB().Find(&order, request.OrderID).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Order not found"})
 		return
 	}
-
 	if order.Status == store.Completed {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Order already paid"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Order already paid"})
 		return
 	}
 
 	// 更新订单状态
 	order.Status = store.Completed
 	if err := store.GetDB().Save(&order).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update order status"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to update order status"})
 		return
 	}
 
@@ -164,18 +180,12 @@ func PayOrder(c *gin.Context) {
 		return
 	}
 
-	room.Available = true // 表示已租
-	if err := store.GetDB().Save(&room).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update room status"})
-		return
-	}
-
 	// 按房间数量最少的管理员分配
 	var admin store.User
-	if err := store.GetDB().Where("role = ?", "admin").
-		Order("room_count ASC").
+	if err := store.GetDB().Where("role = ?", store.UserRoleAdmin).
+		Order("managed_rooms ASC").
 		First(&admin).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "No available admin"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "No available admin"})
 		return
 	}
 
@@ -187,14 +197,14 @@ func PayOrder(c *gin.Context) {
 	}
 
 	if err := store.GetDB().Create(&relationship).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create relationship"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create relationship"})
 		return
 	}
 
 	// 更新管理员所管房间数量
 	admin.ManagedRooms++
 	if err := store.GetDB().Save(&admin).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update admin room count"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to update admin room count"})
 		return
 	}
 
@@ -205,6 +215,7 @@ func PayOrder(c *gin.Context) {
 }
 
 // 用户退租接口
+// TODO:
 func CancelRental(c *gin.Context) {
 	var request struct {
 		UserID uint `json:"user_id"`
