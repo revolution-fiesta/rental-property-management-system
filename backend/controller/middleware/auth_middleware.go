@@ -19,8 +19,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		// 从请求头获取 token
 		tokenString := c.GetHeader("Authorization")
 		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing token"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Missing token"})
 			return
 		}
 
@@ -28,15 +27,13 @@ func AuthMiddleware() gin.HandlerFunc {
 		userId, err := utils.ValidateAccessToken(tokenString[7:], &config.PrivateKey.PublicKey)
 		if err != nil {
 			slog.Error(err.Error())
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			return
 		}
 		// 根据 ID 从数据库查询用户
 		var user store.User
 		if err := store.GetDB().First(&user, userId).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 

@@ -9,19 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// 获取可用的房间
-func GetAvailableRooms(c *gin.Context) {
-	var rooms []store.Room
-
-	result := store.GetDB().Where("is_deleted = ?", false).Find(&rooms)
-	if result.Error != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Database query failed"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"data": rooms})
-}
-
 // 选择房间
 func SelectRoom(c *gin.Context) {
 	type RoomSelection struct {
@@ -40,7 +27,7 @@ func SelectRoom(c *gin.Context) {
 	var room store.Room
 
 	// 根据房间类型和库存筛选房间
-	if err := store.GetDB().First(&room, "type = ? AND is_deleted = ? AND quantity >= ?", selection.RoomType, false, selection.Quantity).Error; err != nil {
+	if err := store.GetDB().First(&room, "type = ? AND available = ? AND quantity >= ?", selection.RoomType, true, selection.Quantity).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "房间类型不可用或库存不足"})
 		return
 	}
@@ -74,7 +61,7 @@ func UpdateRoomInfo(c *gin.Context) {
 		RoomID    uint     `json:"room_id" binding:"required"`
 		Type      *string  `json:"type"`
 		Price     *float64 `json:"price"`
-		IsDeleted *bool    `json:"is_deleted"`
+		Available *bool    `json:"available"`
 		Tags      *string  `json:"tags"`
 		Area      *float64 `json:"area"`
 	}
@@ -94,7 +81,7 @@ func UpdateRoomInfo(c *gin.Context) {
 		room = store.Room{
 			Type:      store.RoomType(*request.Type),
 			Price:     *request.Price,
-			IsDeleted: *request.IsDeleted,
+			Available: *request.Available,
 			Tags:      *request.Tags,
 			Area:      *request.Area,
 		}
@@ -116,8 +103,8 @@ func UpdateRoomInfo(c *gin.Context) {
 	if request.Price != nil {
 		room.Price = *request.Price
 	}
-	if request.IsDeleted != nil {
-		room.IsDeleted = *request.IsDeleted
+	if request.Available != nil {
+		room.Available = *request.Available
 	}
 	if request.Tags != nil {
 		room.Tags = *request.Tags

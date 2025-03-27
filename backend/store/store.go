@@ -111,21 +111,6 @@ func Close() (error, error) {
 	// }()
 }
 
-// 测试时的测试数据
-func GenerateMockData() error {
-	rooms := []Room{
-		{Type: TwoBedroom, Quantity: 311, Price: 5000}, // 两房一厅
-		{Type: OneBedroom, Quantity: 605, Price: 3500}, // 一房一厅
-		{Type: SingleRoom, Quantity: 505, Price: 2000}, // 单间
-	}
-	for _, room := range rooms {
-		if tx := db.FirstOrCreate(&room, Room{Type: room.Type}); tx.Error != nil {
-			return errors.Wrapf(tx.Error, "failed to generate mock data")
-		}
-	}
-	return nil
-}
-
 // Migrate 自动迁移模型
 func Migrate() error {
 	return db.AutoMigrate(

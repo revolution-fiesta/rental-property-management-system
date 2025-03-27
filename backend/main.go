@@ -46,12 +46,6 @@ func main() {
 		return
 	}
 
-	// TODO: 仅用于生成测试数据库数据
-	if err = store.GenerateMockData(); err != nil {
-		slog.Error(err.Error())
-		return
-	}
-
 	// 生成服务器验证的公私钥对
 	config.PrivateKey, err = utils.GeneratePrivateKey()
 	if err != nil {
@@ -80,8 +74,6 @@ func main() {
 	// 启动服务器
 	go func() {
 		slog.Info(fmt.Sprintf("Server runs on port %s", config.AppConfig.Server.Port))
-		// crt :=config.AppConfig.Server.CrtFilePath
-		// key := config.AppConfig.Server.KeyFilePath
 		if err := server.ListenAndServe(); err != nil {
 			slog.Error("Server encounted an error")
 		}

@@ -1,6 +1,6 @@
 import requests
 
-backend_url = "https://localhost:8080"
+backend_url = "http://localhost:8080"
 token = ""
 headers = {}
 
@@ -14,7 +14,6 @@ def Register():
   }
   resp = requests.post(f"{backend_url}/register", json=body)
   print(resp.json())
-  
   
 def RegisterAdmin():
   body = {
@@ -37,7 +36,20 @@ def Login():
   }
   print(resp)
 
+
+def GetRooms():
+  resp = requests.get(f"{backend_url}/get-rooms")
+  if resp.status_code == 200:
+    print(resp.json())
+
+def GetAvailableRooms():
+  resp = requests.get(f"{backend_url}/get-available-rooms")
+  if resp.status_code == 200:
+    print(resp.json())
+
 if __name__ == "__main__":
   # Register()
-  Login()
-  RegisterAdmin()
+  # Login()
+  # GetRooms()
+  GetAvailableRooms()
+  # RegisterAdmin()

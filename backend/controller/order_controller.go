@@ -31,7 +31,7 @@ func CreateOrder(c *gin.Context) {
 	}
 
 	// 检查房间是否已被租出去
-	if room.IsDeleted {
+	if room.Available {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "该房间已出租"})
 		return
 	}
@@ -70,7 +70,7 @@ func CreateOrder(c *gin.Context) {
 	}
 
 	// 更新房间状态为已租
-	room.IsDeleted = true
+	room.Available = true
 	store.GetDB().Save(&room)
 
 	// 返回订单详情
@@ -164,7 +164,7 @@ func PayOrder(c *gin.Context) {
 		return
 	}
 
-	room.IsDeleted = true // 表示已租
+	room.Available = true // 表示已租
 	if err := store.GetDB().Save(&room).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update room status"})
 		return
@@ -253,7 +253,7 @@ func CancelRental(c *gin.Context) {
 	}
 
 	// 更新房间状态为未租出
-	room.IsDeleted = false
+	room.Available = false
 	if err := store.GetDB().Save(&room).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update room status"})
 		return

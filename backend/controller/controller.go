@@ -10,8 +10,7 @@ func ConfigRouter(r *gin.Engine) {
 	// 用户注册和登录不需要管理员权限
 	r.POST("/login", Login)
 	r.POST("/register", Register)
-	r.POST("/get-rooms", GetAllRooms)
-	r.POST("/get-available-rooms", GetAvailableRooms)
+	r.GET("/get-rooms", GetAllRooms)
 	r.POST("/get-filtered-rooms", GetFilteredRooms)
 
 	// 需要身份认证的路由
