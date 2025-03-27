@@ -13,6 +13,8 @@ type Relationship struct {
 	RoomID uint `gorm:"not null"`
 	// 记录交付的租金
 	DepositPrice float64 `gorm:"not null"`
+	// 记录订单 ID
+	OrderID uint `gorm:"not null"`
 	// 分配时间
 	AssignedAt string `gorm:"type:timestamp;"`
 	// 通过外键关联房间信息

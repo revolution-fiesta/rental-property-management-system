@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -56,9 +57,10 @@ func CreateOrder(c *gin.Context) {
 
 	// 创建订单
 	order := store.Order{
-		UserID:    user.ID,
-		RoomID:    request.RoomID,
-		TotalTerm: request.TotalTerm,
+		UserID:           user.ID,
+		RoomID:           request.RoomID,
+		TotalTerm:        request.TotalTerm,
+		RemainingBiilNum: request.TotalTerm,
 	}
 	if err := store.GetDB().Create(&order).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to create the order"})
@@ -103,6 +105,7 @@ func CreateOrder(c *gin.Context) {
 		AdminID:      admin.ID,
 		RoomID:       room.ID,
 		DepositPrice: deposit,
+		OrderID:      order.ID,
 	}
 	if err := store.GetDB().Create(&relationship).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create relationship"})
@@ -203,18 +206,6 @@ func TerminateLease(c *gin.Context) {
 		return
 	}
 
-	// 更新房间状态为未租出
-	var room store.Room
-	if err := store.GetDB().Find(&room, request.RoomID).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Room not found"})
-		return
-	}
-	room.Available = false
-	if err := store.GetDB().Save(&room).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to update room status"})
-		return
-	}
-
 	// 更新管理员房间数量 -1
 	var admin store.User
 	if err := store.GetDB().Find(&admin, relationship.AdminID).Error; err != nil {
@@ -230,6 +221,12 @@ func TerminateLease(c *gin.Context) {
 	}
 
 	// 提前生成当月的订单
+	// WARN: 这个要和定时生成账单的协程进行一个同步
+	room := store.Room{}
+	if err := store.GetDB().Find(&room, request.RoomID).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Room not found"})
+		return
+	}
 	billing := store.Billing{
 		Type:   string(store.BillingTypeMonthlyPayment),
 		Price:  utils.CalculateProRatedRent(room.Price, time.Now()),
@@ -237,7 +234,17 @@ func TerminateLease(c *gin.Context) {
 		Paid:   false,
 	}
 	if err := store.GetDB().Save(&billing); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to create billing"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to create the bill"})
+		return
+	}
+
+	// 更新订单状态为失效
+	order := store.Order{
+		ID:               relationship.OrderID,
+		RemainingBiilNum: 0,
+	}
+	if err := store.GetDB().Save(&order); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to set the order %q to invalid", relationship.OrderID)})
 		return
 	}
 
@@ -277,5 +284,17 @@ func ListBillings(c *gin.Context) {
 // 删除 relationship 表中的记录
 // if err := store.GetDB().Delete(&relationship).Error; err != nil {
 // 	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete relationship"})
+// 	return
+// }
+
+// // 更新房间状态为未租出
+// var room store.Room
+// if err := store.GetDB().Find(&room, request.RoomID).Error; err != nil {
+// 	c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Room not found"})
+// 	return
+// }
+// room.Available = true
+// if err := store.GetDB().Save(&room).Error; err != nil {
+// 	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to update room status"})
 // 	return
 // }
