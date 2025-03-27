@@ -72,7 +72,7 @@ func UpdateRoomInfo(c *gin.Context) {
 }
 
 // 查询所有房间接口
-func GetAllRooms(c *gin.Context) {
+func ListAllRooms(c *gin.Context) {
 	var rooms []store.Room
 	// 查询所有房间数据
 	if err := store.GetDB().Find(&rooms).Error; err != nil {

@@ -31,7 +31,6 @@ func CreateWorkOrder(c *gin.Context) {
 	workOrder := store.WorkOrder{
 		UserID:  input.UserID,
 		RoomID:  input.RoomID,
-		AdminID: relationship.AdminID,
 		Problem: input.Problem,
 		Status:  store.WorkOrderPending,
 	}
@@ -45,7 +44,7 @@ func CreateWorkOrder(c *gin.Context) {
 }
 
 // 管理员查询待处理工单
-func GetWorkOrdersByAdmin(c *gin.Context) {
+func ListWorkOrders(c *gin.Context) {
 	// 通过中间件获取管理员权限
 	user, _ := c.Get("user") // 获取用户信息
 

@@ -8,8 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 查询房间分配关系，包含房间信息
-func GetAllRelationships(c *gin.Context) {
+// 根据用户 ID 查询房间分配关系
+func ListRelationships(c *gin.Context) {
+
 	var relationships []store.Relationship
 
 	// 使用 Preload 来加载关联的房间信息

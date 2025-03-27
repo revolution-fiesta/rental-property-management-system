@@ -121,5 +121,6 @@ func Migrate() error {
 		// 用户与管理员、房间关系表
 		&Relationship{},
 		&WorkOrder{},
+		&Billing{},
 	)
 }
