@@ -24,3 +24,9 @@
   # run
   python main.py
 ```
+
+### Setup Postgres
+
+```shell
+  docker run --name some-postgres -e POSTGRES_PASSWORD=270153 -d postgres
+```
