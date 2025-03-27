@@ -39,17 +39,12 @@ def Login():
 
 def GetRooms():
   resp = requests.get(f"{backend_url}/get-rooms")
-  if resp.status_code == 200:
-    print(resp.json())
-
-def GetAvailableRooms():
-  resp = requests.get(f"{backend_url}/get-available-rooms")
+  print(resp)
   if resp.status_code == 200:
     print(resp.json())
 
 if __name__ == "__main__":
   # Register()
   # Login()
-  # GetRooms()
-  GetAvailableRooms()
+  GetRooms()
   # RegisterAdmin()
