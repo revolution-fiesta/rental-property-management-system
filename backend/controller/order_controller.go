@@ -117,6 +117,19 @@ func CreateOrder(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to update admin room count"})
 		return
 	}
+
+	// 为房间生成临时密码
+	password := store.Password{
+		RoomID:   request.RoomID,
+		Password: utils.GenerateRandomPassword(6),
+		// 过期时间为两个小时
+		ExpiresAt: time.Now().Add(120 * time.Minute),
+	}
+	if err := store.GetDB().Save(&password).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create password"})
+		return
+	}
+
 	// 返回订单详情
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Order created successfully",

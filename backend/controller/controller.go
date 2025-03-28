@@ -22,6 +22,8 @@ func ConfigRouter(r *gin.Engine) {
 	authRoutes.GET("/list-orders", ListOrders)
 	authRoutes.GET("/list-billings", ListBillings)
 	authRoutes.POST("/terminate-lease", TerminateLease)
+	authRoutes.POST("/change-room-password", ChangeRoomPassword)
+	authRoutes.POST("/get-password", GetPassword)
 
 	// 需要管理员权限的路由
 	adminRoutes := authRoutes.Group("/", middleware.AdminMiddleware())

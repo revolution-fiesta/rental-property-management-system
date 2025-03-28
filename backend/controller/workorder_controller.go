@@ -86,6 +86,7 @@ func UpdateWorkOrder(c *gin.Context) {
 
 	// 根据工单类型触发对应流程
 	// 退租流程
+	// TODO: 退租之后还涉及电子门锁的管理, 后续需要考虑
 	if workOrder.Type == store.WorkOrderTypeTerminateLease && request.Status == string(store.WorkOrderStatusCompleted) {
 		// 根据房间 ID 寻找绑定关系
 		relationship := store.Relationship{}

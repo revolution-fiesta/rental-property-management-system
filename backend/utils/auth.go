@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"crypto/sha256"
 	"fmt"
+	mathRand "math/rand"
 	"rental-property-management-system/backend/config"
 	"strconv"
 	"time"
@@ -108,4 +109,15 @@ func CheckUsername(username string) error {
 		}
 	}
 	return nil
+}
+
+// 生成指定位数的密码
+func GenerateRandomPassword(length int) string {
+	const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	seededRand := mathRand.New(mathRand.NewSource(time.Now().UnixNano()))
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[seededRand.Intn(len(charset))]
+	}
+	return string(b)
 }
