@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"rental-property-management-system/backend/config"
 	"rental-property-management-system/backend/controller"
+	"rental-property-management-system/backend/runner"
 	"rental-property-management-system/backend/utils"
 
 	"rental-property-management-system/backend/store"
@@ -80,6 +81,8 @@ func main() {
 		cancel()
 	}()
 
+	// 每隔一定时间检查一次数据库的账单进行出账
+	runner.StartBillingRunner(ctx)
 	// 阻塞直到 ctx 结束
 	<-ctx.Done()
 }
