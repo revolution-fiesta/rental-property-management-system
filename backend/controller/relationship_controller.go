@@ -9,9 +9,9 @@ import (
 )
 
 // 根据用户 ID 查询房间分配关系
+// TODO: PreLoad N + 1 ?
 func ListRelationships(c *gin.Context) {
 	var relationships []store.Relationship
-	// TODO: PreLoad N + 1 ?
 	if err := store.GetDB().Find(&relationships).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve relationships"})
 		return
