@@ -10,15 +10,12 @@ import (
 
 // 根据用户 ID 查询房间分配关系
 func ListRelationships(c *gin.Context) {
-
 	var relationships []store.Relationship
-
-	// 使用 Preload 来加载关联的房间信息
-	if err := store.GetDB().Preload("Room").Find(&relationships).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve relationships"})
+	// TODO: PreLoad N + 1 ?
+	if err := store.GetDB().Find(&relationships).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve relationships"})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"relationships": relationships,
 	})

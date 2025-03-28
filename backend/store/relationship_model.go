@@ -17,6 +17,4 @@ type Relationship struct {
 	OrderID uint `gorm:"not null"`
 	// 分配时间
 	AssignedAt string `gorm:"type:timestamp;"`
-	// 通过外键关联房间信息
-	Room Room `gorm:"foreignKey:RoomID"`
 }

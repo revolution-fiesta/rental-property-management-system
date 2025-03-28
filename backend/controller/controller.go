@@ -29,5 +29,5 @@ func ConfigRouter(r *gin.Engine) {
 	adminRoutes.POST("/update-room", UpdateRoomInfo)
 	adminRoutes.POST("/admin-register", RegisterAdmin)
 	adminRoutes.GET("/list-workorders", ListWorkOrders)
-	adminRoutes.POST("/update-workorder", UpdateWorkOrderStatus)
+	adminRoutes.POST("/update-workorder", UpdateWorkOrder)
 }

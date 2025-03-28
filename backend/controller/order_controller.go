@@ -250,8 +250,9 @@ func TerminateLease(c *gin.Context) {
 
 	// 生成收房工单等待管理员处理
 	workOrder := store.WorkOrder{
-		Problem: store.WorkOrderProblemTerminateLease,
-		Status:  store.WorkOrderPending,
+		Type:    store.WorkOrderTypeTerminateLease,
+		Status:  store.WorkOrderStatusPending,
+		AdminID: relationship.AdminID,
 	}
 	if err := store.GetDB().Save(&workOrder); err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to create work order"})
@@ -278,23 +279,3 @@ func ListBillings(c *gin.Context) {
 		"billings": billings,
 	})
 }
-
-// TODO: 每月自动生成支付账单的 worker
-// TODO: 管理员验收
-// 删除 relationship 表中的记录
-// if err := store.GetDB().Delete(&relationship).Error; err != nil {
-// 	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete relationship"})
-// 	return
-// }
-
-// // 更新房间状态为未租出
-// var room store.Room
-// if err := store.GetDB().Find(&room, request.RoomID).Error; err != nil {
-// 	c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Room not found"})
-// 	return
-// }
-// room.Available = true
-// if err := store.GetDB().Save(&room).Error; err != nil {
-// 	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to update room status"})
-// 	return
-// }

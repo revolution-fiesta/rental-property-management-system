@@ -8,18 +8,18 @@ type WorkOrderStatus string
 
 const (
 	// 待处理
-	WorkOrderPending WorkOrderStatus = "pending"
+	WorkOrderStatusPending WorkOrderStatus = "pending"
 	// 处理中
-	WorkOrderInProcess WorkOrderStatus = "in_process"
+	WorkOrderStatusInProcess WorkOrderStatus = "in_process"
 	// 已完成
-	WorkOrderCompleted WorkOrderStatus = "completed"
+	WorkOrderStatusCompleted WorkOrderStatus = "completed"
 )
 
-type WorkOrderProblemType string
+type WorkOrderType string
 
 const (
 	// TODO: 能不能不用中文
-	WorkOrderProblemTerminateLease = "退租验收"
+	WorkOrderTypeTerminateLease = "退租验收"
 )
 
 type WorkOrder struct {
@@ -28,8 +28,12 @@ type WorkOrder struct {
 	UserID uint `gorm:"not null"`
 	// 报修的房间ID
 	RoomID uint `gorm:"not null"`
-	// 问题描述，例如：漏水、门锁坏了
-	Problem   string          `gorm:"type:text;not null"`
+	// 工单类型
+	Type string `gorm:"type:text;not null"`
+	// 问题描述
+	Description string `gorm:"type:text"`
+	// 关联的管理员 ID
+	AdminID   uint            `gorm:"not null"`
 	Status    WorkOrderStatus `gorm:"type:varchar(20);not null"`
 	CreatedAt time.Time       `gorm:"autoCreateTime"`
 	UpdatedAt time.Time       `gorm:"autoUpdateTime"`
