@@ -72,7 +72,7 @@ func UpdateRoomInfo(c *gin.Context) {
 }
 
 // 查询所有房间接口
-func ListAllRooms(c *gin.Context) {
+func ListRooms(c *gin.Context) {
 	var rooms []store.Room
 	// 查询所有房间数据
 	if err := store.GetDB().Find(&rooms).Error; err != nil {
@@ -92,9 +92,10 @@ type GetFilteredRoomsRequest struct {
 	MaxPrice *uint32         `json:"max_price"`
 	MinArea  *uint32         `json:"min_area"`
 	MaxArea  *uint32         `json:"max_area"`
+	Keyword  *string         `json:"keyword"`
 }
 
-func GetFilteredRooms(c *gin.Context) {
+func ListFilteredRooms(c *gin.Context) {
 	var request GetFilteredRoomsRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "failed to parse request"})
@@ -123,6 +124,9 @@ func GetFilteredRooms(c *gin.Context) {
 	db = db.Where("area >= ? AND area <= ?", request.MinArea, request.MaxArea)
 	if request.RoomType != nil {
 		db = db.Where("type = ?", request.RoomType)
+	}
+	if request.Keyword != nil {
+		db = db.Where("name LIKE ?", "%"+*request.Keyword+"%")
 	}
 
 	// 查询符合条件的房间数据

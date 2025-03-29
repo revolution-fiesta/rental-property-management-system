@@ -7,19 +7,15 @@ Component({
     },
     price: {
       type: String,
-      value: '6300元/月' // 默认价格
+      value: '6300' // 默认价格
     },
-    action1: {
+    tags: {
       type: String,
       value: '随时看'
     },
-    action2: {
-      type: String,
-      value: '房源新'
-    },
     title: {
       type: String,
-      value: '贝丽花园 3室2厅 南'
+      value: '贝丽花园 南'
     },
     info: {
       type: String,

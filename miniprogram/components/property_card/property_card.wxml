@@ -3,10 +3,9 @@
   <image class="card-image" src="{{imageSrc}}" mode="aspectFill"></image>
   <view class="card-content">
     <view class="card-header">
-      <view class="card-price">{{price}}</view>
+      <view class="card-price">{{price}}元/月</view>
       <view class="card-actions">
-        <view class="action-btn">{{action1}}</view>
-        <view class="action-btn">{{action2}}</view>
+        <view class="action-btn">{{tags}}</view>
       </view>
     </view>
     <view class="card-title">{{title}}</view>

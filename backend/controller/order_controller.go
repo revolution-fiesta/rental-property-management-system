@@ -229,7 +229,7 @@ func TerminateLease(c *gin.Context) {
 		admin.ManagedRooms--
 	}
 	if err := store.GetDB().Save(&admin).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update admin room count"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to update admin room count"})
 		return
 	}
 

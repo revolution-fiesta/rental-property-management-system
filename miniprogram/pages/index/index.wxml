@@ -1,25 +1,55 @@
 <!--index.wxml-->
 
 <scroll-view class="scrollarea" scroll-y type="list">
-  <view class="search-container">
-    <input class="search-input" placeholder="搜索房源" bindinput="onSearchInput" />
+  <view style="display: flex; flex-direction: row; align-items: center;">
+    <image src="/images/ui/list.svg" style="width: 35px; height: 35px; margin-left: 10px;" bind:tap="toggleBottomBar" ></image>
+    <view style="margin-left: 20px; width: 100%; margin-right: 20px; border: 1px solid #ccc; border-radius: 0px; padding: 5px;">
+      <input placeholder="搜索房源" bindinput="onSearchbarInput" style="width: 100%; border: none; outline: none;" />
+    </view>
   </view>
-
-  <PropertyCard bind:tap="goToDetail"/>
-
+  <view style="margin-top: 10px; padding: 5px;">
+    <block wx:for="{{propertyList}}" wx:key="id" >
+      <view style="margin-top: 2px">
+        <PropertyCard 
+        price="{{item.Price}}"
+        tags="{{item.Tags}}"
+        title="{{item.Name}}"
+        info="{{item.Type}}/{{item.Area}}㎡"
+      ></PropertyCard>
+      </view>
+    </block>
+  </view>
 </scroll-view>
 
-<view class="fixed-button">
-    <button bindtap="toggleBottomBar">打开底部栏</button>
-  </view>
 
-  <!-- 底部栏 -->
-  <view class="bottom-bar" animation="{{animationData}}">
-    <view class="bottom-content">
-      <text>这是底部栏的内容</text>
+<view class="bottom-bar" style="transform: translateY({{isBottomBarVisible ? '0%' : '100%'}}); opacity: {{isBottomBarVisible ? 1 : 0}};">
+  <view class="bottom-content">
+    <!-- 筛选面积 -->
+    <view class="filter-item">
+      <text>面积区间（㎡）：{{areaMin}} - {{areaMax}}</text>
+      <slider min="0" max="500" step="10" value="{{areaMin}}" bindchange="onAreaMinChange" show-value />
+      <slider min="0" max="500" step="10" value="{{areaMax}}" bindchange="onAreaMaxChange" show-value />
     </view>
 
-    <button bindtap="toggleBottomBar">关闭底部栏</button>
+    <!-- 筛选房价 -->
+    <view class="filter-item">
+      <text>月租房价区间（元）：{{priceMin}} - {{priceMax}}</text>
+      <slider min="0" max="30000" step="50" value="{{priceMin}}" bindchange="onPriceMinChange" show-value />
+      <slider min="0" max="30000" step="50" value="{{priceMax}}" bindchange="onPriceMaxChange" show-value />
+    </view>
+
+    <!-- 筛选房型 -->
+    <view class="filter-item">
+      <text>房型：</text>
+      <picker mode="selector" range="{{roomTypes}}" bindchange="onRoomTypeChange" class="picker-box"> 
+        <view class="picker">{{selectedRoomType}}</view>
+      </picker>
+    </view>
   </view>
 
+  <view style="display: flex; flex-direction: row;">
+    <button bind:tap="onFilterButtonCancel">取消</button>
+    <button bind:tap="fetchFilteredProperties">确定</button> 
+  </view>
+</view>
 
