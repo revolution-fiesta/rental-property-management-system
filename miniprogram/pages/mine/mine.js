@@ -1,71 +1,30 @@
-// pages/mine/mine.js
 Page({
-
-  /**
-   * Page initial data
-   */
   data: {
-
+    room: {
+      name: "豪华单人间 101",
+      type: "1室1厅1卫",
+      floor: "10F",
+      area: "50",
+    },
+    tempPassword: "1234-5678",
   },
 
-  /**
-   * Lifecycle function--Called when page load
-   */
-  onLoad(options) {
-
-  },
-
-  /**
-   * Lifecycle function--Called when page is initially rendered
-   */
-  onReady() {
-
-  },
-
-  /**
-   * Lifecycle function--Called when page show
-   */
-  onShow() {
-
-  },
-
-  /**
-   * Lifecycle function--Called when page hide
-   */
-  onHide() {
-
-  },
-
-  /**
-   * Lifecycle function--Called when page unload
-   */
-  onUnload() {
-
-  },
-
-  /**
-   * Page event handler function--Called when user drop down
-   */
-  onPullDownRefresh() {
-
-  },
-
-  /**
-   * Called when page reach bottom
-   */
-  onReachBottom() {
-
-  },
-
-  /**
-   * Called when user click on the top right corner to share
-   */
-  onShareAppMessage() {
-
-  },
-  goToDetail: function () {
-    wx.navigateTo({
-      url: '/pages/details/details'
+  // 生成新密码
+  changePassword() {
+    const newPassword = Math.random().toString().slice(2, 10);
+    this.setData({
+      tempPassword: newPassword,
+    });
+    wx.showToast({
+      title: "密码已更新",
+      icon: "success",
     });
   },
-})
+
+  // 跳转到工单页面
+  goToWorkOrder() {
+    wx.navigateTo({
+      url: "/pages/work_order/work_order",
+    });
+  },
+});

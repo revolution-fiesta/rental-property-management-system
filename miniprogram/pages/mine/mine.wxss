@@ -1,1 +1,75 @@
-/* pages/mine/mine.wxss */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #f4f4f4;
+}
+
+/* 卡片样式 */
+.card {
+  width: 90%;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* 房间信息 */
+.room-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.room-details text {
+  display: block;
+  font-size: 28rpx;
+  color: #555;
+  margin: 5px 0;
+}
+
+/* 临时密码 */
+.password-label {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.password-value {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #ff5722;
+  margin-top: 10px;
+  display: block;
+}
+
+.refresh-btn {
+  background-color: #FF5722;
+  color: white;
+  padding: 12rpx;
+  border-radius: 10rpx;
+  font-size: 30rpx;
+  margin-top: 10px;
+}
+
+
+
+/* 操作按钮 */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+}
+
+.primary-btn {
+  background-color: #007AFF;
+  color: white;
+  padding: 15rpx;
+  border-radius: 10rpx;
+  font-size: 32rpx;
+  text-align: center;
+  margin-top: 10px;
+}

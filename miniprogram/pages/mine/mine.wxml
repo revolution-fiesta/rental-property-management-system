@@ -1,6 +1,25 @@
-<scroll-view class="scrollarea" scroll-y type="list">
+<view class="container">
+  <!-- 房间信息卡片 -->
+  <view class="card">
+    <text class="room-title">{{room.name}}</text>
+    <view class="room-details">
+      <text>户型：{{room.type}}</text>
+      <text>楼层：{{room.floor}}</text>
+      <text>面积：{{room.area}}㎡</text>
+    </view>
+  </view>
 
-  <MyHouse bind:tap="goToDetail"/>
+  <!-- 临时密码 -->
+  <view class="card password-section">
+    <text class="password-label">临时密码</text>
+    <text class="password-value">{{tempPassword}}</text>
+    <button class="refresh-btn" bindtap="changePassword">更改密码</button>
+  </view>
 
 
-</scroll-view>
+
+  <!-- 操作按钮 -->
+  <view class="button-group">
+    <button class="primary-btn" bind:tap="goToWorkOrder">提交工单</button>
+  </view>
+</view>
