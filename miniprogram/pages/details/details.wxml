@@ -1,42 +1,54 @@
-<!--pages/details/details.wxml-->
-<text style="position: relative; left: 64rpx; top: 474rpx">华发山庄 一室一厅</text>
+<view class="container">
+  <!-- 可滚动区域 -->
+  <scroll-view class="scroll-container" scroll-y="true">
+    
+    <!-- 房屋图片 -->
+    <image class="house-image" src="{{houseImage}}"/>
 
-<view>
-  <image style="position: relative; width: 750rpx; height: 364rpx; display: inline-block; box-sizing: border-box; left: 0rpx; top: -49rpx" src="/images/houses/house_1.png" />
-</view>
-<view style="display: flex; flex-direction: column; height: 329rpx;; margin-bottom: 10px; position: relative; left: 0rpx; top: -52rpx; width: 750rpx; box-sizing: border-box">
-  <view style="background-color: #F1F1F1; display: flex; flex-direction: row; gap: 20px; height: 102rpx; box-sizing: border-box">
-    <text style="position: relative; left: 50rpx; top: 34rpx; ">华发山庄</text>
-  </view>
-  
-  <view style="background-color: #E6E6E6; display: flex; flex-direction: row; gap: 4; height: 93rpx; box-sizing: border-box">
-    <text style="display: flex; position: relative; left: 40rpx; top: 30rpx; font-weight: 600">$</text>
-    <text style="font-weight: 500; font-size: 30px; display: flex; position: relative; left: 47rpx; top: 0rpx">5380</text>
-    <view style="position: relative; left: 30px; top: 13px">/月</view>
-  </view>
-  <view style="background-color: #F1F1F1; height: 156rpx; display: block; box-sizing: border-box">
-    <view style="width: 100%; background: #d1d1d1; height: 258rpx; display: block; box-sizing: border-box">
-      <view style="display:flex; flex-direction:row; height: 150px;">
-        <SquareGrid style="width: 393rpx; display: block; box-sizing: border-box" />
+    <!-- 房屋信息 -->
+    <view class="house-content">
+      <!-- 标题 + 价格 -->
+      <view class="house-header">
+        <text class="house-title">{{houseName}}</text>
+        <view class="price-box">
+          <text class="price-symbol">¥</text>
+          <text class="price">{{rent}}</text>
+          <text class="price-unit">/月</text>
+        </view>
+      </view>
 
-        
-        <view style="background-color: #F1F1F1; flex: 1;"></view>
+      <!-- 四宫格房屋参数 -->
+      <view class="info-grid">
+        <view class="info-item">
+          <text class="label">户型</text>
+          <text class="value">{{houseType}}</text>
+        </view>
+        <view class="info-item">
+          <text class="label">面积</text>
+          <text class="value">{{area}}㎡</text>
+        </view>
+        <view class="info-item">
+          <text class="label">楼层</text>
+          <text class="value">{{floor}}</text>
+        </view>
+        <view class="info-item">
+          <text class="label">位置</text>
+          <text class="value">{{location}}</text>
+        </view>
+      </view>
+
+      <!-- 房屋描述 -->
+      <view class="house-desc">
+        <text class="section-title" style="display: block;">房屋描述</text>
+        <text class="desc-text">{{description}}</text>
       </view>
     </view>
 
+  </scroll-view>
+
+  <!-- 底部操作按钮 -->
+  <view class="footer">
+    <button class="btn secondary" bindtap="addToWatchlist">🛒 联系看房</button>
+    <button class="btn primary" bindtap="bookVisit">📅 立即签约</button>
   </view>
 </view>
-
-<view class="fixed-bottom">
-  <view style="width: 30px;"></view>
-    <view style="display: flex; flex-direction: column; padding: 4px; gap: 6px; width: 150px;">
-      <!-- 点击复制管家电话 -->
-      <image src="/images/ui/phone-call.png" style="width: 23px; height: 23px; display: flex;"></image>
-      <view style="font-weight: 200; font-size: 15px; display: flex;">看房</view>
-    </view>
-      <view style="width: 20%;"></view>
-    <button class="btn">加入收藏</button>
-    <button class="btn">立即签约</button>
-    <view style="width: 10%;"></view>
-
-  </view>

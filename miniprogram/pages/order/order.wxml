@@ -1,0 +1,44 @@
+<view class="container">
+
+  <!-- 订单详情：占据屏幕主要区域 -->
+  <view class="order-info">
+    <!-- 顶部标题 -->
+    <view class="header">
+    <text class="title">租房账单</text>
+  </view>
+  <view style="display: flex; flex-direction: column; gap: 5px; margin-top: 30px;">
+    <view class="info-item">
+      <text class="label">🏠 名称：</text>
+      <text class="value">{{houseName}}</text>
+    </view>
+
+    <view class="info-item">
+      <text class="label">📅 详细：</text>
+      <text class="value">{{rentPeriod}}</text>
+    </view>
+
+    <view class="info-item">
+      <text class="label">📄 账单生成日期：</text>
+      <text class="value">{{billDate}}</text>
+    </view>
+
+    <view class="info-item" >
+      <text class="label">📄 账单编号：</text>
+      <text class="value">{{billID}}</text>
+    </view>
+
+
+    <view class="info-item amount" style="margin-top:20px; align-items: center;">
+      <text class="label" style="font-weight: 600; font-size: large;">💰 总金额：</text>
+      <text class="value price">¥{{amount}}</text> 
+    </view>
+  </view>
+
+
+  </view>
+
+  <!-- 底部支付按钮：始终贴紧屏幕底部 -->
+  <view class="footer">
+    <button class="pay-button" bindtap="handlePayment">立即支付</button>
+  </view>
+</view>

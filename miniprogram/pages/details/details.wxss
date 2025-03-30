@@ -1,60 +1,144 @@
-.container {
-  width: 100%;
-  padding: 20px;
+/* 标题 + 价格 */
+.house-header {
+  text-align: left;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #eee;
 }
 
-.icon-scroll {
+.house-title {
+  font-size: 32rpx;
+  font-weight: normal;
+  margin-bottom: 5rpx;
+}
+
+.price-box {
   display: flex;
-  white-space: nowrap; /* 保证图标在同一行内 */
+  align-items: baseline;
+  margin-top: 10rpx;
 }
 
-.icon-item {
-  width: 80px;
-  height: 80px;
-  margin-right: 10px;
-  background-color: #f0f0f0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 8px;
+.price-symbol {
+  font-size: 48rpx;
+  color: #ff5722;
 }
 
-
-
-.container {
-  position: relative;
-  padding-bottom: 80rpx; /* 为了让底部区域有空间，避免被遮挡 */
+.price {
+  font-size: 64rpx;
+  color: #ff5722;
+  font-weight: bold;
+  margin-left: 5rpx;
 }
 
-.fixed-bottom {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  display: flex;  
-  background-color: #ffffff;
-  padding: 15rpx;
-  box-shadow: 0 -5rpx 20rpx rgba(0, 0, 0, 0.1); /* 阴影效果 */
+.price-unit {
+  font-size: 28rpx;
+  color: #888;
+  margin-left: 5rpx;
 }
 
-.btn {
-  width: 35%; /* 按钮宽度为父容器的 45% */
-  font-size: 16px;
-  border-radius: 25rpx; /* 圆角 */
-  border: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* 四宫格房屋参数 */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30rpx;
+  margin: 30rpx 0;
+  text-align: center;
+}
+
+.info-item {
+  background: #f9f9f9;
+  padding: 20rpx;
+  border-radius: 10rpx;
+}
+
+.value {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.label {
+  font-size: 24rpx;
+  color: #888;
+  margin-top: 10rpx;
+  display: block;
+}
+
+/* 房屋描述 */
+.house-desc {
+  padding: 20rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
   font-weight: bold;
 }
 
-.btn-left {
-  background-color: #ff5c5c; /* 左侧按钮背景色 */
+.desc-text {
+  font-size: 28rpx;
+  color: #555;
+  line-height: 1.6;
+}
+
+/* 底部固定按钮 */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  position: fixed;
+  bottom: 0;
+  left: -10px;
+  width: 100%;
+  padding: 20rpx;
+  background: #fff;
+  border-top: 1rpx solid #ddd;
+  
+}
+
+.btn {
+  flex: 1;
+  padding: 15rpx 0;
+  font-size: 32rpx;
+  text-align: center;
+  margin: 0 10rpx;
+}
+
+.primary {
+  background: #ff5722;
   color: white;
 }
 
-.btn-right {
-  background-color: #ffffff;
-  color: #ff5c5c; /* 右侧按钮文字颜色 */
-  border: 2rpx solid #ff5c5c; /* 右侧按钮边框 */
+.secondary {
+  background: #f1f1f1;
+  color: #333;
+}
+
+/* 页面整体 */
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  margin: 0; /* 确保容器没有额外的外边距 */
+}
+
+/* 让 scroll-view 贴紧屏幕顶部并可以滚动 */
+.scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+  margin-top: 0; /* 确保没有额外的间距 */
+  padding-top: 0;  /* 确保没有额外的内边距 */
+}
+
+/* 房屋图片 - 方形且占满上方 */
+.house-image {
+  width: 100%;
+  height: 500rpx; 
+  display: block;
+  margin-top: 0; /* 确保图片没有外边距 */
+}
+
+/* 确保内容紧贴图片 */
+.house-content {
+  background: #fff;
+  padding: 20rpx;
+  margin-top: -10rpx; /* 防止意外间距 */
 }

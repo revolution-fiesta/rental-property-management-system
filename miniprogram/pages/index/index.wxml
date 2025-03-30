@@ -21,7 +21,6 @@
   </view>
 </scroll-view>
 
-
 <view class="bottom-bar" style="transform: translateY({{isBottomBarVisible ? '0%' : '100%'}}); opacity: {{isBottomBarVisible ? 1 : 0}};">
   <view class="bottom-content">
     <!-- 筛选面积 -->

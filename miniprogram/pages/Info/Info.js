@@ -3,7 +3,6 @@ Page({
   data: {
     token: ''
   },
-
   handleLogin() {
     wx.login({
       success(loginRes) {
@@ -12,7 +11,6 @@ Page({
           return;
         }
         console.log("成功获取 code:", loginRes.code);
-
         wx.request({
           url: "http://127.0.0.1:8080/login",
           method: "POST",
@@ -34,6 +32,11 @@ Page({
       fail(err) {
         console.error("wx.login 失败:", err);
       }
+    });
+  },
+  naviToOrder() {
+    wx.navigateTo({
+      url: `/pages/order/order?orderType=外卖&amount=88.88&billDate=2025-03-30`
     });
   }
 });

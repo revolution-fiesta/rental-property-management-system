@@ -1,66 +1,38 @@
-// pages/details/details.js
 Page({
-
-  /**
-   * Page initial data
-   */
   data: {
-
+    houseName: '',
+    rent: '',
+    houseImage: '',
+    location: '',
+    houseType: '',
+    area: '',
+    description: ''
   },
 
-  /**
-   * Lifecycle function--Called when page load
-   */
   onLoad(options) {
-
+    // 从上一页传递的参数
+    this.setData({
+      houseName: options.houseName || '未知房源',
+      rent: options.rent || '0',
+      houseImage: options.houseImage || '/images/default-house.png',
+      location: options.location || '未知位置',
+      houseType: options.houseType || '未知',
+      area: options.area || '0',
+      description: options.description || '暂无描述'
+    });
   },
 
-  /**
-   * Lifecycle function--Called when page is initially rendered
-   */
-  onReady() {
-
+  callAgent() {
+    wx.makePhoneCall({
+      phoneNumber: '123456789' // 这里换成实际管家电话
+    });
   },
 
-  /**
-   * Lifecycle function--Called when page show
-   */
-  onShow() {
-
+  addToFavorites() {
+    wx.showToast({ title: '已加入收藏', icon: 'success' });
   },
 
-  /**
-   * Lifecycle function--Called when page hide
-   */
-  onHide() {
-
-  },
-
-  /**
-   * Lifecycle function--Called when page unload
-   */
-  onUnload() {
-
-  },
-
-  /**
-   * Page event handler function--Called when user drop down
-   */
-  onPullDownRefresh() {
-
-  },
-
-  /**
-   * Called when page reach bottom
-   */
-  onReachBottom() {
-
-  },
-
-  /**
-   * Called when user click on the top right corner to share
-   */
-  onShareAppMessage() {
-
+  contactLandlord() {
+    wx.showToast({ title: '已联系房东', icon: 'success' });
   }
-})
+});

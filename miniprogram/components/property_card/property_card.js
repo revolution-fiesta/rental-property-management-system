@@ -24,5 +24,4 @@ Component({
   },
   data: {},
   methods: {},
-
 });

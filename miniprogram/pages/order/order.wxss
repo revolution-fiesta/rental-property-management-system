@@ -1,0 +1,83 @@
+/* 全屏布局 */
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+  align-items: center;
+
+  background-color: #f5f5f5;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+
+
+
+/* 顶部区域 */
+.header {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 订单详情 */
+.order-info {
+  background: white;
+  padding: 20px;
+  width: 95%;
+  height: 80%;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 订单信息项 */
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.label {
+  font-size: 16px;
+  color: #666;
+}
+
+.value {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+/* 金额样式 */
+.amount {
+  border-bottom: none;
+}
+
+.price {
+  color: #ff5722;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* 底部支付按钮 */
+.footer {
+  width: 100%;
+  padding: 20px;
+}
+
+.pay-button {
+  width: 100%;
+  background-color: #ff5722;
+  color: white;
+  font-size: 18px;
+  padding: 14px;
+  border-radius: 8px;
+  text-align: center;
+}
