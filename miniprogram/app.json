@@ -4,7 +4,6 @@
     "pages/info/info",
     "pages/details/details",
     "pages/mine/mine",
-    "pages/my_house_info/my_house_info",
     "pages/order/order",
     "pages/work_order/work_order"
   ],
