@@ -6,7 +6,8 @@ Page({
     location: '',
     houseType: '',
     area: '',
-    description: ''
+    description: '',
+    floor: ''
   },
 
   onLoad(options) {
@@ -14,11 +15,12 @@ Page({
     this.setData({
       houseName: options.houseName || '未知房源',
       rent: options.rent || '0',
-      houseImage: options.houseImage || '/images/default-house.png',
+      houseImage: options.houseImage || '/images/houses/house_1.png',
       location: options.location || '未知位置',
       houseType: options.houseType || '未知',
       area: options.area || '0',
-      description: options.description || '暂无描述'
+      description: options.description || '暂无描述',
+      floor: options.floor || '1'
     });
   },
 

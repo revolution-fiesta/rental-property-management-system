@@ -1,0 +1,40 @@
+.admin-container {
+  text-align: center;
+  padding: 40rpx;
+}
+
+.header {
+  margin-bottom: 30rpx;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40rpx;
+  padding: 20rpx;
+}
+
+.grid-item {
+  background: #fff;
+  padding: 30rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.icon {
+  width: 80rpx;
+  height: 80rpx;
+  margin-bottom: 10rpx;
+}
+
+.label {
+  font-size: 28rpx;
+  color: #555;
+}

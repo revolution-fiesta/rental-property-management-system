@@ -1,0 +1,14 @@
+<view class="admin-container">
+  <view class="header">
+    <text class="title">管理员控制台</text>
+  </view>
+  
+  <view class="grid">
+    <block wx:for="{{features}}" wx:key="name">
+      <view class="grid-item" bindtap="navigateToFeature" style="display: flex; flex-direction: column; align-items: center; gap: 5px;" data-page="{{item.page}}">
+        <image class="icon" src="{{item.icon}}" style="display: block;"/>
+        <text class="label">{{item.name}}</text>
+      </view>
+    </block>
+  </view>
+</view>

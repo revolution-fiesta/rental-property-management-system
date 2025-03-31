@@ -1,0 +1,4 @@
+.bill-list {
+  padding: 20rpx;
+  background: #f5f5f5;
+}

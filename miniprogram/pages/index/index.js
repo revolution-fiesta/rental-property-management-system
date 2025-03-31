@@ -42,11 +42,13 @@ Page({
       });
     }
   },
-  goToDetail: function () {
+  goToDetail(event) {
+    const item_idx = event.currentTarget.dataset.index
+    const room_obj = this.data.propertyList[item_idx]
     wx.navigateTo({
-      url: '/pages/details/details'
-    });
-  }, 
+      url: `/pages/details/details?houseName=${room_obj.Name}&rent=${room_obj.Price}&area=${room_obj.Area}&houseType=${room_obj.Type}&floor=${room_obj.Floor}`,
+    })
+  },
   fetchProperties: function () {
     const that = this;
     // 假设你有一个 API 返回数据
@@ -54,7 +56,7 @@ Page({
       url: 'http://localhost:8080/list-rooms',  // 替换为实际的 API 地址
       method: 'GET',
       success(res) {
-        if (res.data ) {
+        if (res.data) {
           const mappedData = res.data.rooms.map(item => ({
             Available: item.Available,
             Floor: item.Floor,
@@ -153,7 +155,7 @@ Page({
       searchbarText: e.detail.value
     });
     this.fetchFilteredProperties()
-  }
+  },
 })
 function convertRoomType(roomType) {
   // 定义映射关系

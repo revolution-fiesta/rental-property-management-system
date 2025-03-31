@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+  "BillItem": "/components/bill_item/bill_item"
+  }
+}

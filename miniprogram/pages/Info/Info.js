@@ -34,9 +34,10 @@ Page({
       }
     });
   },
-  naviToOrder() {
+  naviToAdminPanel() {
     wx.navigateTo({
-      url: `/pages/order/order?orderType=外卖&amount=88.88&billDate=2025-03-30`
-    });
+      url: '/pages/admin_page/admin_page',
+    })
+
   }
 });

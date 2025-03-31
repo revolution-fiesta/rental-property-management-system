@@ -8,13 +8,15 @@
     </view>
   </view>
   <view style="margin-top: 10px; padding: 5px;">
-    <block wx:for="{{propertyList}}" wx:key="id" >
+    <block wx:for="{{propertyList}}" wx:key="id" wx:for-index="index">
       <view style="margin-top: 2px">
         <PropertyCard 
         price="{{item.Price}}"
         tags="{{item.Tags}}"
         title="{{item.Name}}"
         info="{{item.Type}}/{{item.Area}}㎡"
+        data-index="{{index}}"
+        bind:tap="goToDetail"
       ></PropertyCard>
       </view>
     </block>

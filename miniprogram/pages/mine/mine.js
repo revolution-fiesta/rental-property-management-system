@@ -20,11 +20,16 @@ Page({
       icon: "success",
     });
   },
-
   // 跳转到工单页面
   goToWorkOrder() {
     wx.navigateTo({
       url: "/pages/work_order/work_order",
     });
   },
+  // 申请退租按钮
+  terminateLease() {
+    wx.showToast({
+      title: '退租申请已发起',
+    })
+  }
 });

@@ -1,0 +1,5 @@
+<view class="bill-list">
+  <block wx:for="{{bills}}" wx:key="id">
+    <BillItem bill="{{item}}" bind:tap="naviToOrder"/>
+  </block>
+</view>

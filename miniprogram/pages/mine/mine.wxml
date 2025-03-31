@@ -18,8 +18,19 @@
 
 
 
-  <!-- 操作按钮 -->
-  <view class="button-group">
+ <view style="display: flex;flex-direction: row; gap: 100px">
+   <!-- 操作按钮 -->
+   <view class="button-group">
     <button class="primary-btn" bind:tap="goToWorkOrder">提交工单</button>
   </view>
+    <!-- 退租申请 -->
+  <view class="button-group">
+    <button class="primary-btn" bind:tap="terminateLease">申请退租</button>
+  </view>
+ 
+ </view>
 </view>
+
+
+
+

@@ -5,7 +5,10 @@
     "pages/details/details",
     "pages/mine/mine",
     "pages/order/order",
-    "pages/work_order/work_order"
+    "pages/work_order/work_order",
+    "pages/bill_list/bill_list",
+    "pages/admin_page/admin_page",
+    "pages/ticket_list/ticket_list"
   ],
   "window": {
     "backgroundTextStyle": "light",
