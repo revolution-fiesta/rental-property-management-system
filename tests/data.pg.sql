@@ -7,6 +7,6 @@ INSERT INTO rooms (name, type, price, tags, area, description, image_url) VALUES
 -- billings
 INSERT INTO billings (type, user_id, billing_id, price, paid, created_at, updated_at) VALUES
 ('rent-room', 1, 101, 1200.50, false, NOW(), NOW()),
-('monthly-pay', 2, 102, 800.00, true, NOW(), NOW()),
-('terminate-lease', 3, 103, 500.00, false, NOW(), NOW());
+('monthly-pay', 1, 102, 800.00, true, NOW(), NOW()),
+('terminate-lease', 1, 103, 500.00, false, NOW(), NOW());
 
