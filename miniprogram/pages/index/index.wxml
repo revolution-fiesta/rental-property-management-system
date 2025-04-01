@@ -11,6 +11,7 @@
     <block wx:for="{{propertyList}}" wx:key="id" wx:for-index="index">
       <view style="margin-top: 2px">
         <PropertyCard 
+        imageSrc="{{item.Image}}"
         price="{{item.Price}}"
         tags="{{item.Tags}}"
         title="{{item.Name}}"

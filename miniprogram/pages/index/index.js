@@ -46,7 +46,7 @@ Page({
     const item_idx = event.currentTarget.dataset.index
     const room_obj = this.data.propertyList[item_idx]
     wx.navigateTo({
-      url: `/pages/details/details?houseName=${room_obj.Name}&rent=${room_obj.Price}&area=${room_obj.Area}&houseType=${room_obj.Type}&floor=${room_obj.Floor}`,
+      url: `/pages/details/details?houseName=${room_obj.Name}&rent=${room_obj.Price}&area=${room_obj.Area}&houseType=${room_obj.Type}&floor=${room_obj.Floor}&description=${room_obj.Description}&houseImage=${room_obj.Image}`,
     })
   },
   fetchProperties: function () {
@@ -65,7 +65,9 @@ Page({
             Price: item.Price,
             Tags: item.Tags,
             Type: convertRoomTypeReverse(item.Type),
-            Area: item.Area
+            Area: item.Area,
+            Description: item.Description,
+            Image: `http://localhost:8080/static/${item.ImageUrl}`
           }));
           that.setData({
             propertyList: mappedData
@@ -132,7 +134,9 @@ Page({
             Price: item.Price,
             Tags: item.Tags,
             Type: convertRoomTypeReverse(item.Type),
-            Area: item.Area
+            Area: item.Area,
+            Description: item.Description,
+            Image: `http://localhost:8080/static/${item.ImageUrl}`
           }));
           that.setData({
             propertyList: mappedData
