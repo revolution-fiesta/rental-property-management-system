@@ -26,10 +26,11 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Port        string `yaml:"port"`
-	Env         string `yaml:"env"`
-	CrtFilePath string `yaml:"crt"`
-	KeyFilePath string `yaml:"key"`
+	Port           string `yaml:"port"`
+	Env            string `yaml:"env"`
+	CrtFilePath    string `yaml:"crt"`
+	KeyFilePath    string `yaml:"key"`
+	StaticFilePath string `yaml:"static_files"`
 }
 
 type DatabaseConfig struct {

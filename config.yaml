@@ -3,6 +3,7 @@ server:
   env: "development"
   crt: "tests/localhost.crt"
   key: "tests/localhost.key"
+  static_files: "statics"
 
 database:
   host: "localhost"

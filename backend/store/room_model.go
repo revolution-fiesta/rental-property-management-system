@@ -27,4 +27,6 @@ type Room struct {
 	Area float64 `gorm:"type:decimal(10,2);not null"`
 	// 描述信息
 	Description string `gorm:"type:text"`
+	// 关联房屋图片
+	ImageUrl string `gorm:"type:text"`
 }

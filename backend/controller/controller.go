@@ -1,12 +1,17 @@
 package controller
 
 import (
+	"rental-property-management-system/backend/config"
 	"rental-property-management-system/backend/controller/middleware"
 
 	"github.com/gin-gonic/gin"
 )
 
 func ConfigRouter(r *gin.Engine) {
+	// 代理静态文件
+	// TODO: 最好移动到专门的网站上
+	r.Static("/static", config.AppConfig.Server.StaticFilePath)
+
 	// 用户注册和登录不需要管理员权限
 	r.POST("/login", Login)
 	r.POST("/register", Register)
