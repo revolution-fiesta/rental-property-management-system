@@ -42,7 +42,7 @@ func Login(c *gin.Context) {
 	if reqeust.AuthMethod == string(AuthMethodWechat) {
 		openID, err := getWechatOpenID(reqeust.OAuthCode)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "failed to send oauth code"})
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 		// 如果该 OpenID 没有关联的账号，则创建新账号
@@ -91,7 +91,8 @@ func Login(c *gin.Context) {
 		"message": "Login successfully",
 		"token":   token,
 		// 返回用户角色，后续可以根据角色做权限验证
-		"role": user.Role,
+		"role":    user.Role,
+		"open_id": user.OpenID,
 	})
 }
 

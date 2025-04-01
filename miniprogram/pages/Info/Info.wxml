@@ -1,16 +1,18 @@
 <view class="container">
   <!-- 用户信息部分 -->
-  <view class="header" style="background-color: white; height: 140px; width: 370px; padding: 20px; position: relative; left: 0rpx; top: -39rpx">
-    <text class="greeting" style="position: relative; left: 43rpx; top: -87rpx">欢迎回来~~~</text>
-    <text class="subtext" style="position: relative; left: -212rpx; top: -29rpx">马上注册，使用更多功能</text>
-    <image style="position: relative; left: 0rpx; top: -20rpx" class="user-avatar" src="/images/tabbar/info_selected.png" />
+  <view class="header" style="background-color: white; height: 100px; width: 370px; padding: 20px; position: relative; left: 0rpx; top: -40rpx; display: flex; flex-direction: row; gap: 100px;" bind:tap="handleLogin">
+    <view style="display: flex ;flex-direction: column; margin-left: 20px; margin-top: 20px;">
+      <text class="greeting">{{openId}}</text>
+      <text class="subtext" style="width: 160px;">{{userType}}</text>
+    </view>
+    <image class="user-avatar"  src="/images/tabbar/info_selected.png" style="margin-top: 25px;" />
   </view>
   
   <!-- 功能列表部分 -->
   <view class="function-list" style="display: flex; flex-direction: column; gap: 20px;">
     <view>
-        <FunctionItem style="position: relative; left: 0rpx; top: -58rpx" icon="/images/ui/star.png" text="我的收藏" targetPage="/pages/favorites/favorites"/>
-        <FunctionItem style="position: relative; left: 0rpx; top: -58rpx" icon="/images/ui/contract.png" text="租房服务流程" targetPage="/pages/index/index" />
+        <!-- <FunctionItem style="position: relative; left: 0rpx; top: -58rpx" icon="/images/ui/star.png" text="我的收藏" targetPage="/pages/favorites/favorites"/> -->
+        <FunctionItem style="position: relative; left: 0rpx; top: -58rpx" icon="/images/ui/contract.png" text="我的账单" targetPage="/pages/bill_list/bill_list" />
         <FunctionItem style="position: relative; left: 0rpx; top: -58rpx" icon="/images/ui/settings.png" text="设置" targetPage="/pages/settings/settings" />
     </view>
     <view style="display: flex;">

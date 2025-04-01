@@ -1,12 +1,12 @@
 .bill-item {
-  padding: 20rpx;
-  border-bottom: 1rpx solid #eee;
-  display: flex;
-  flex-direction: column;
+  padding: 24rpx;
+  margin: 20rpx;
+  border-radius: 12rpx;
   background: #fff;
+  box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.05);
 }
 
-.bill-info {
+.bill-header {
   display: flex;
   justify-content: space-between;
   font-size: 32rpx;
@@ -18,11 +18,16 @@
 }
 
 .bill-meta {
-  margin-top: 10rpx;
+  margin-top: 16rpx;
   display: flex;
   justify-content: space-between;
   font-size: 28rpx;
   color: #666;
+}
+
+.bill-status {
+  font-size: 28rpx;
+  font-weight: bold;
 }
 
 .paid {
