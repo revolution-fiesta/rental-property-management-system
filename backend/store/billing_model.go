@@ -12,10 +12,11 @@ const (
 
 // Relationship 模型，表示用户与管理员和房间的关系
 type Billing struct {
+	// WARN: 这里的 ID 和 billingID 有点问题
 	gorm.Model
-	Type      string  `gorm:"not null"`
-	UserID    uint    `gorm:"not null"`
-	BillingID uint    `gorm:"not null"`
-	Price     float64 `gorm:"not null"`
-	Paid      bool    `gorm:"default:false"`
+	Name   string  `gorm:"not null"`
+	Type   string  `gorm:"not null"`
+	UserID uint    `gorm:"not null"`
+	Price  float64 `gorm:"not null"`
+	Paid   bool    `gorm:"default:false"`
 }

@@ -93,6 +93,7 @@ func CreateOrder(c *gin.Context) {
 		UserID: user.ID,
 		Paid:   false,
 		Price:  deposit,
+		Name:   fmt.Sprintf("%s签约账单", room.Name),
 	}
 	if err := store.GetDB().Save(&billing).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to create the bill"})
@@ -167,8 +168,8 @@ func PayBill(c *gin.Context) {
 	}
 
 	// 查找支付的订单
-	var billing store.Billing
-	if err := store.GetDB().Find(&billing, request.BillingID).Error; err != nil {
+	billing := store.Billing{}
+	if err := store.GetDB().Where("id = ?", request.BillingID).Find(&billing).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Billing not found"})
 		return
 	}
@@ -245,6 +246,7 @@ func TerminateLease(c *gin.Context) {
 		Price:  utils.CalculateProRatedRent(room.Price, time.Now()),
 		UserID: user.ID,
 		Paid:   false,
+		Name:   fmt.Sprintf("%s退租账单", room.Name),
 	}
 	if err := store.GetDB().Save(&billing); err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to create the bill"})
@@ -284,7 +286,7 @@ func ListBillings(c *gin.Context) {
 		return
 	}
 	billings := []store.Billing{}
-	if err := store.GetDB().Where("user_id = ?", user.ID).Find(billings).Error; err != nil {
+	if err := store.GetDB().Where("user_id = ?", user.ID).Find(&billings).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

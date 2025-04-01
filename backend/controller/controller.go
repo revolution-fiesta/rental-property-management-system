@@ -12,10 +12,11 @@ func ConfigRouter(r *gin.Engine) {
 	// TODO: 最好移动到专门的网站上
 	r.Static("/static", config.AppConfig.Server.StaticFilePath)
 
-	// 用户注册和登录不需要管理员权限
+	// 无需特别权限的接口
 	r.POST("/login", Login)
 	r.POST("/register", Register)
 	r.GET("/list-rooms", ListRooms)
+	r.POST("/get-room", GetRoom)
 	r.POST("/list-filtered-rooms", ListFilteredRooms)
 
 	// 需要身份认证的路由

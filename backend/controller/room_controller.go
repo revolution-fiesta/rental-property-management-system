@@ -139,3 +139,25 @@ func ListFilteredRooms(c *gin.Context) {
 		"rooms": rooms,
 	})
 }
+
+// 根据房间 ID 获取房间信息
+// WARN: 限制查询字段权限
+type GetRoomRequest struct {
+	RoomID string `json:"room_id"`
+}
+
+func GetRoom(c *gin.Context) {
+	var request GetRoomRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	room := store.Room{}
+	if err := store.GetDB().Where("id = ?", request.RoomID).Find(&room).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"room": room})
+}

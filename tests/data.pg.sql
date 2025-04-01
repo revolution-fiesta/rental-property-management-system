@@ -5,8 +5,7 @@ INSERT INTO rooms (name, type, price, tags, area, description, image_url) VALUES
     ('松湖智居 3 栋', 'b1',600.75, '温馨, 经济实惠', 30.2, '经济型公寓，空间紧凑但温馨，适合学生或短租客', '3.jpg');
 
 -- billings
-INSERT INTO billings (type, user_id, billing_id, price, paid, created_at, updated_at) VALUES
-('rent-room', 1, 101, 1200.50, false, NOW(), NOW()),
-('monthly-pay', 1, 102, 800.00, true, NOW(), NOW()),
-('terminate-lease', 1, 103, 500.00, false, NOW(), NOW());
-
+INSERT INTO billings (type, user_id, billing_id, price, paid, created_at, updated_at, name) VALUES
+('rent-room', 1, 101, 1200.50, false, NOW(), NOW(), '松湖智居 4 栋签约账单'),
+('monthly-pay', 1, 102, 800.00, true, NOW(), NOW(), '松湖智居 4 栋月付账单 (1/6)'),
+('terminate-lease', 1, 103, 500.00, false, NOW(), NOW(), '松湖智居 4 栋退租账单');

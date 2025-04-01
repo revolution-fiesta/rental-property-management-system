@@ -2,6 +2,7 @@ package runner
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"rental-property-management-system/backend/store"
 	"rental-property-management-system/backend/utils"
@@ -31,6 +32,7 @@ func StartBillingRunner(ctx context.Context) {
 	}()
 }
 
+// WARN: 这个函数的可行性需要严格测试
 func generateBilling() error {
 	now := time.Now()
 	orders := []store.Order{}
@@ -57,6 +59,7 @@ func generateBilling() error {
 				UserID: order.UserID,
 				Price:  room.Price,
 				Paid:   false,
+				Name:   fmt.Sprintf("%s月付账单 (%d/%d)", room.Name, order.TotalTerm-order.RemainingBiilNum, order.TotalTerm),
 			}
 			if err := store.GetDB().Save(&billing).Error; err != nil {
 				return errors.Wrapf(err, "failed to create the bill")

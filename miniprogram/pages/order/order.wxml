@@ -4,17 +4,12 @@
   <view class="order-info">
     <!-- 顶部标题 -->
     <view class="header">
-    <text class="title">租房账单</text>
+    <text class="title">{{houseName}}</text>
   </view>
   <view style="display: flex; flex-direction: column; gap: 5px; margin-top: 30px;">
     <view class="info-item">
-      <text class="label">🏠 名称：</text>
-      <text class="value">{{houseName}}</text>
-    </view>
-
-    <view class="info-item">
-      <text class="label">📅 详细：</text>
-      <text class="value">{{rentPeriod}}</text>
+      <text class="label">🏠 类型：</text>
+      <text class="value">{{type}}</text>
     </view>
 
     <view class="info-item">
@@ -27,6 +22,10 @@
       <text class="value">{{billID}}</text>
     </view>
 
+    <view class="info-item">
+      <text class="label">📅 详细：</text>
+      <text class="value">{{rentPeriod}}</text>
+    </view>
 
     <view class="info-item amount" style="margin-top:20px; align-items: center;">
       <text class="label" style="font-weight: 600; font-size: large;">💰 总金额：</text>

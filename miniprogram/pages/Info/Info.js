@@ -79,7 +79,7 @@ Page({
   },
   // 没法自动获取昵称，需要用户手动填写
   handleChooseAvatar(e) {
-    // 先设置头像
+    // TODO: 这里应该根据后端的信息来设置头像
     wx.setStorageSync('avatar_url', e.detail.avatarUrl)
     // 然后登录
     this.handleLogin()

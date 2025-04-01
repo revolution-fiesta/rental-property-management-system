@@ -1,13 +1,13 @@
 <view class="bill-item" bindtap="goToDetail">
   <view class="bill-header">
-    <text class="bill-name">{{bill.name}}</text>
-    <text class="bill-amount">¥{{bill.amount}}</text>
+    <text class="bill-name">{{bill.Name}}</text>
+    <text class="bill-amount">¥{{bill.Price}}</text>
   </view>
   
   <view class="bill-meta">
-    <text class="bill-date">{{bill.date}}</text>
-    <text class="bill-status {{bill.paid ? 'paid' : 'unpaid'}}">
-      {{bill.paid ? '已支付' : '未支付'}}
+    <text class="bill-date">{{bill.Date}}</text>
+    <text class="bill-status {{bill.Paid ? 'paid' : 'unpaid'}}">
+      {{bill.Paid ? '已支付' : '未支付'}}
     </text>
   </view>
 </view>
