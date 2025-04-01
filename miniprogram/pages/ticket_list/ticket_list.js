@@ -1,44 +1,87 @@
+const app = getApp()
+
 Page({
   data: {
-    tickets: [
-      { 
-        id: "T001", 
-        title: "空调故障", 
-        created_at: "2025-03-30", 
-        description: "房间 101 的空调无法正常制冷", 
-        user_id: "U123456", 
-        room_name: "101 号房",
-        resolved: false 
+    workOrders: [],
+    roomNames:[]
+  },
+
+  onShow() {
+    this.loadWorkOrders()
+  },
+
+  loadWorkOrders(){
+    const token = wx.getStorageSync('token');
+    wx.request({
+      url: 'http://localhost:8080/list-admin-workorders',
+      method: 'GET',
+      header: {
+        'Authorization': `Bearer ${token}`,
       },
-      { 
-        id: "T002", 
-        title: "水龙头漏水", 
-        created_at: "2025-03-29", 
-        description: "厨房水龙头持续滴水", 
-        user_id: "U654321", 
-        room_name: "202 号房",
-        resolved: true 
+      // TODO: 写成同步的不然要多次更新数据太烦了
+      success: (res) => {
+        for (let index = 0; index < res.data.work_orders.length; index++) {
+          const element = res.data.work_orders[index];
+          wx.request({
+            url: 'http://localhost:8080/get-room',
+            method: "POST",
+            header: {
+              'Authorization': `Bearer ${token}`,
+            },
+            data: {
+              "room_id": res.data.work_orders[index].RoomID
+            },
+            // TODO: 部分 IOS 不适配
+            success: (roomRes) => {
+              let arr = this.data.roomNames
+              arr.push(roomRes.data.room.Name)
+              this.setData({roomNames: arr})
+              this.setData({
+                workOrders: res.data.work_orders
+                  .map((work_order, index) => ({
+                    Date: app.FormatDateToYYYYMMDDHHMMSS(new Date(work_order.CreatedAt)),  // 格式化 CreatedAt
+                    Description: work_order.Description,
+                    Type: work_order.Type,
+                    ID: work_order.ID,
+                    Resolved: work_order.Status == "completed",
+                    RoomName: this.data.roomNames[index]
+                  }))
+                  .sort((a, b) => new Date(b.Date) - new Date(a.Date)) // 按时间降序排序（最新的在前）
+              });
+            },
+            fail: () => {}
+          })
+        }
       },
-      { 
-        id: "T003", 
-        title: "门锁损坏", 
-        created_at: "2025-03-28", 
-        description: "房门锁芯松动，钥匙难以插入", 
-        user_id: "U789123", 
-        room_name: "303 号房",
-        resolved: false 
+      fail(error) {
+        // 请求失败时的回调
+        console.log('请求失败', error);
       }
-    ]
+    });
   },
 
   markAsResolved(e) {
-    const id = e.currentTarget.dataset.id;
-    const updatedTickets = this.data.tickets.map(ticket => {
-      if (ticket.id === id) {
-        return { ...ticket, resolved: true };
-      }
-      return ticket;
-    });
-    this.setData({ tickets: updatedTickets });
+    const work_order_id = e.currentTarget.dataset.id;
+    const token = wx.getStorageSync('token')
+    wx.request({
+      url: 'http://localhost:8080/update-workorder',
+      method: "POST",
+      header: {
+        'Authorization': `Bearer ${token}`,
+      },
+      data: {
+        work_order_id: work_order_id,
+        status: "completed"
+      },
+      success: (res) => {
+        console.log(res.data)
+        wx.showToast({
+          title: '成功更新状态',
+        })
+        this.onShow()
+      },
+      fail: () => {}
+    })
+
   }
 });

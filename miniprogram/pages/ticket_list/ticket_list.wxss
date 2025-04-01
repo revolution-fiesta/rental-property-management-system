@@ -64,7 +64,7 @@
 }
 
 .room {
-  color: #007aff;
+  color: #888;
   font-weight: bold;
 }
 

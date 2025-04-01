@@ -1,34 +1,44 @@
+const app = getApp()
+
 Page({
   data: {
     workOrderText: "",
     workOrders: [],
   },
 
-  onLoad() {
-    // 先检查本地存储是否已有工单
-    let workOrders = wx.getStorageSync("workOrders");
-    if (!workOrders || workOrders.length === 0) {
-      // 预设一些工单数据
-      workOrders = [
-        {
-          id: 1,
-          date: "2025-03-30 10:15",
-          description: "空调无法启动，可能是遥控器没电了。",
-        },
-        {
-          id: 2,
-          date: "2025-03-29 14:30",
-          description: "水龙头有滴水现象，需要维修。",
-        },
-        {
-          id: 3,
-          date: "2025-03-28 09:50",
-          description: "房门锁有点松动，希望安排维修人员。",
-        },
-      ];
-      wx.setStorageSync("workOrders", workOrders);
-    }
-    this.setData({ workOrders });
+  onShow(){
+    this.loadWorkOrders()
+  },
+
+  loadWorkOrders(){
+    const token = wx.getStorageSync('token');
+    wx.request({
+      url: 'http://localhost:8080/list-user-workorders',
+      method: 'GET',
+      header: {
+        'Authorization': `Bearer ${token}`,
+      },
+      success: (res) => {
+        // 请求成功时的回调
+        console.log(res.data);
+        this.setData({
+          workOrders: res.data.work_orders.map(work_order => {
+            return {
+              Date: app.FormatDateToYYYYMMDDHHMMSS(new Date(work_order.CreatedAt)),  // 格式化 CreatedAt
+              Description: work_order.Description,
+              Status: work_order.Status,
+              Type: work_order.Type,
+              ID: work_order.ID
+            };
+          })
+        });
+        console.log(this.data.workOrders)
+      },
+      fail(error) {
+        // 请求失败时的回调
+        console.log('请求失败', error);
+      }
+    });
   },
 
   // 监听输入
@@ -42,17 +52,27 @@ Page({
       wx.showToast({ title: "请输入工单内容", icon: "none" });
       return;
     }
-
-    const newOrder = {
-      id: Date.now(),
-      date: new Date().toLocaleString(),
-      description: this.data.workOrderText,
-    };
-
-    const workOrders = [...this.data.workOrders, newOrder];
-    wx.setStorageSync("workOrders", workOrders);
-    this.setData({ workOrders, workOrderText: "" });
-
-    wx.showToast({ title: "工单提交成功", icon: "success" });
+    const token = wx.getStorageSync('token');
+    wx.request({
+      url: 'http://localhost:8080/create-work-order',
+      method: 'POST',
+      header: {
+        'Authorization': `Bearer ${token}`,
+      },
+      data: {
+        "room_id": 1,
+        "description": this.data.workOrderText.trim()
+      },
+      success: (res) => {
+        // 请求成功时的回调
+        console.log(res.data);
+        wx.showToast({ title: "工单提交成功", icon: "success" });
+        this.onShow()
+      },
+      fail(error) {
+        // 请求失败时的回调
+        console.log('请求失败', error);
+      }
+    });
   },
 });

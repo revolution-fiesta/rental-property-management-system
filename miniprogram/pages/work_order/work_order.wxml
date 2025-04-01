@@ -1,15 +1,24 @@
 <view class="container">
   <text class="title">填写工单</text>
-  <textarea class="input-box" placeholder="请输入工单内容" bindinput="onInput" value="{{workOrderText}}"></textarea>
+  <textarea style="margin-top: 10px; height: 150px;" class="input-box" placeholder="请输入工单内容" bindinput="onInput" value="{{workOrderText}}"></textarea>
   <button bindtap="submitOrder" class="submit-btn">提交</button>
 
   <!-- 工单历史 -->
-  <view class="work-order-history">
+  <view class="work-order-history" style="margin-top: 40px;">
     <text class="history-title">工单历史</text>
     <block wx:for="{{workOrders}}" wx:key="id">
-      <view class="work-order-item">
-        <text class="date">{{item.date}}</text>
-        <text class="description">{{item.description}}</text>
+      <view class="work-order-item" style="margin-top: 10px;">
+        <view class="work-order-header">
+          <text class="work-order-id">工单编号: {{item.ID}}</text>
+          <text class="work-order-type">{{item.Type}}</text>
+        </view>
+        <view class="work-order-content">
+          <text class="date" style="display: block;">{{item.Date}}</text>
+          <text class="description">{{item.Description}}</text>
+        </view>
+        <text class="status {{item.Status == 'pending' ? 'pending' : 'done'}}">
+          {{item.Status == 'pending' ? '待管理员处理' : '已完成'}}
+        </text>
       </view>
     </block>
   </view>

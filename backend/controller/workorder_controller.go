@@ -9,50 +9,79 @@ import (
 )
 
 // 创建工单
+type CreateWorkOrderRequest struct {
+	RoomID      uint   `json:"room_id"`
+	Description string `json:"description"`
+}
+
 func CreateWorkOrder(c *gin.Context) {
-	var input struct {
-		UserID  uint   `json:"user_id"`
-		RoomID  uint   `json:"room_id"`
-		Problem string `json:"problem"`
+	user, err := middleware.GetUserFromContext(c)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{})
+		return
 	}
 
-	if err := c.ShouldBindJSON(&input); err != nil {
+	var request CreateWorkOrderRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "参数错误"})
 		return
 	}
 
 	// 确认房间和用户的绑定关系，找到对应的管理员
 	var relationship store.Relationship
-	if err := store.GetDB().Where("user_id = ? AND room_id = ?", input.UserID, input.RoomID).First(&relationship).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "未找到租赁关系"})
+	tx := store.GetDB().Where("user_id = ? AND room_id = ?", user.ID, request.RoomID).Find(&relationship)
+	if err := tx.Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if tx.RowsAffected == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Failed to find any related rooms"})
 		return
 	}
 
 	// 创建工单
 	workOrder := store.WorkOrder{
-		UserID: input.UserID,
-		RoomID: input.RoomID,
-		Type:   input.Problem,
-		Status: store.WorkOrderStatusPending,
+		UserID:      user.ID,
+		RoomID:      request.RoomID,
+		Type:        store.WorkOrderTypeGeneral,
+		Description: request.Description,
+		Status:      store.WorkOrderStatusPending,
 	}
-
 	if err := store.GetDB().Create(&workOrder).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "工单创建失败"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create work order"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "工单创建成功", "work_order": workOrder})
+	c.JSON(http.StatusOK, gin.H{
+		"message":    "工单创建成功",
+		"work_order": workOrder,
+	})
 }
 
-// 管理员查询待处理工单
-func ListWorkOrders(c *gin.Context) {
+// 用户查询提交的工单
+func ListUserWorkOrders(c *gin.Context) {
 	user, err := middleware.GetUserFromContext(c)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{})
 		return
 	}
 	var workOrders []store.WorkOrder
-	if err := store.GetDB().Where("admin_id = ? AND status = ?", user.ID, store.WorkOrderStatusPending).Find(&workOrders).Error; err != nil {
+	if err := store.GetDB().Where("user_id = ?", user.ID).Find(&workOrders).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to get work orders"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"work_orders": workOrders})
+}
+
+// 管理员查询待处理工单
+func ListAdminWorkOrders(c *gin.Context) {
+	user, err := middleware.GetUserFromContext(c)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{})
+		return
+	}
+	var workOrders []store.WorkOrder
+	if err := store.GetDB().Where("admin_id = ?", user.ID).Find(&workOrders).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to get work orders"})
 		return
 	}

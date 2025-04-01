@@ -3,6 +3,5 @@
   "navigationBarTextStyle": "black",
   "usingComponents": {
     "FunctionItem": "/components/function_item/function_item"
-
   }
 }

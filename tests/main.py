@@ -1,3 +1,4 @@
+import pprint
 import requests
 
 backend_url = "http://localhost:8080"
@@ -36,7 +37,14 @@ def Login():
   }
   print(resp)
 
-
+def CreateWorkOrders():
+  body = {
+    "room_id": 1,
+    "problem": "pipe leakage"
+  }
+  resp = requests.post(f"{backend_url}/create-work-order", json=body, headers=headers)
+  print(resp.json())
+    
 def GetRooms():
   resp = requests.get(f"{backend_url}/get-rooms")
   print(resp)
@@ -45,6 +53,8 @@ def GetRooms():
 
 if __name__ == "__main__":
   # Register()
-  # Login()
-  GetRooms()
+  Login()
+  # GetRooms()
   # RegisterAdmin()
+  CreateWorkOrders()
+  

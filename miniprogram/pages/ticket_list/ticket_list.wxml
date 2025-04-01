@@ -4,13 +4,12 @@
   </view>
 
   <view class="ticket-list">
-    <block wx:for="{{tickets}}" wx:key="id">
+    <block wx:for="{{workOrders}}" wx:key="id">
       <view class="ticket-item">
         <!-- 工单标题 -->
         <view class="ticket-header">
-          <text class="ticket-title">{{item.title}}</text>
-          <text class="room">房间: {{item.room_name}}</text>
-
+          <text class="ticket-title">{{item.Type}}</text>
+          <text class="room">{{item.RoomName}}</text>
         </view>
 
         <!-- 房间名称 & 用户 ID -->
@@ -20,16 +19,16 @@
 
         <!-- 创建时间 & 简单描述 -->
         <view class="ticket-meta">
-          <text class="date">创建时间: {{item.created_at}}</text>
-          <text class="desc">{{item.description}}</text>
+          <text class="date">创建时间: {{item.Date}}</text>
+          <text class="desc">{{item.Description}}</text>
         </view>
         <button 
             style="margin-top: 10px;"
             class="resolve-btn {{item.resolved ? 'disabled' : ''}}" 
             bindtap="markAsResolved" 
-            data-id="{{item.id}}" 
-            disabled="{{item.resolved}}">
-            {{item.resolved ? "已处理" : "标记为已处理"}}
+            data-id="{{item.ID}}" 
+            disabled="{{item.Resolved}}">
+            {{item.Resolved ? "已处理" : "标记为已处理"}}
           </button>
       </view>
     </block>

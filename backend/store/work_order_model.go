@@ -20,6 +20,7 @@ type WorkOrderType string
 const (
 	// TODO: 能不能不用中文
 	WorkOrderTypeTerminateLease = "退租验收"
+	WorkOrderTypeGeneral        = "一般维护"
 )
 
 type WorkOrder struct {

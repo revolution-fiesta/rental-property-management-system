@@ -143,7 +143,7 @@ func ListFilteredRooms(c *gin.Context) {
 // 根据房间 ID 获取房间信息
 // WARN: 限制查询字段权限
 type GetRoomRequest struct {
-	RoomID string `json:"room_id"`
+	RoomID uint `json:"room_id"`
 }
 
 func GetRoom(c *gin.Context) {
