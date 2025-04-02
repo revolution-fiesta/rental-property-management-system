@@ -52,6 +52,11 @@ Page({
     this.setData({
       currentRoom: this.data.roomList[index],
     });
+    this.getPassword((passwd, exp) => {
+      this.setData({
+        expires_at: exp,
+      })
+    })
   },
 
   changePassword() {
@@ -90,9 +95,9 @@ Page({
 
   showPassword() {
     this.getPassword((passwd, exp) => {
-      this.setData({password: passwd})
-      setTimeout(()=> {
-        this.setData({password: "******"})
+      this.setData({ password: passwd })
+      setTimeout(() => {
+        this.setData({ password: "******" })
       }, 1000)
     })
   },
@@ -115,14 +120,14 @@ Page({
       data: {
         room_id: this.data.currentRoom.ID
       },
-      success: (res)=>{
+      success: (res) => {
         if (res.data.password == null) {
           console.log("failed to get password")
           return
         }
-        callback( res.data.password.Password,  app.FormatDateToYYYYMMDDHHMMSS(new Date(res.data.password.ExpiresAt)))
+        callback(res.data.password.Password, app.FormatDateToYYYYMMDDHHMMSS(new Date(res.data.password.ExpiresAt)))
       },
-      fail: (err)=> {
+      fail: (err) => {
         console.log(err)
       }
     })
@@ -135,8 +140,31 @@ Page({
   },
 
   terminateLease() {
-    wx.showToast({
-      title: '退租申请已发起',
-    });
+    const token = wx.getStorageSync('token')
+    if (!token) {
+      wx.showToast({
+        title: '请重新登录',
+        icon: 'error'
+      })
+    }
+    wx.request({
+      url: 'http://localhost:8080/terminate-lease',
+      method: 'POST',
+      header: {
+        'Authorization': `Bearer ${token}`,
+      },
+      data: {
+        room_id: Number(this.data.currentRoom.ID),
+      },
+      success: (res) => {
+        console.log(res.data)
+        wx.showToast({
+          title: '退租申请已发起',
+        });
+      },
+      fail: (e) => {
+        console.log(e)
+      }
+    })
   }
 });

@@ -26,7 +26,7 @@ Page({
           this.setData({
             bills: res.data.billings.map(bill => {
               return {
-                Price: bill.Price,
+                Price: bill.Price.toFixed(1),
                 Paid: bill.Paid,
                 FormatType: billingTypeToChinese(bill.Type),  // 转换 BillingType
                 Date: app.FormatDateToYYYYMMDDHHMMSS(new Date(bill.CreatedAt)),  // 格式化 CreatedAt

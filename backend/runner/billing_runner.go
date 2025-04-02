@@ -20,6 +20,7 @@ func StartBillingRunner(ctx context.Context) {
 			select {
 			// 定期检查数据库
 			case <-ticker.C:
+				slog.Info(fmt.Sprintf("Billing Runner scans orders in every %d seconds", 10))
 				if err := generateBilling(); err != nil {
 					slog.Warn(err.Error())
 					continue
@@ -40,6 +41,9 @@ func generateBilling() error {
 		return errors.New("failed to sync orders from database")
 	}
 	for _, order := range orders {
+		if order.RemainingBiilNum == 0 {
+			continue
+		}
 		numCycles, err := utils.CalculateBillingCycles(order.CreatedAt, now)
 		if err != nil {
 			return errors.Wrapf(err, "failed to calculate billing cycles")
@@ -59,7 +63,7 @@ func generateBilling() error {
 				UserID: order.UserID,
 				Price:  room.Price,
 				Paid:   false,
-				Name:   fmt.Sprintf("%s月付账单 (%d/%d)", room.Name, order.TotalTerm-order.RemainingBiilNum, order.TotalTerm),
+				Name:   fmt.Sprintf("%s月付账单 (%d/%d)", room.Name, order.TotalTerm-order.RemainingBiilNum+1, order.TotalTerm),
 			}
 			if err := store.GetDB().Save(&billing).Error; err != nil {
 				return errors.Wrapf(err, "failed to create the bill")

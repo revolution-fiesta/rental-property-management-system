@@ -10,6 +10,7 @@ import (
 	"rental-property-management-system/backend/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 )
 
 // 创建订单的接口
@@ -50,7 +51,7 @@ func CreateOrder(c *gin.Context) {
 	}
 
 	// 检查房间是否已被租出去
-	if room.Available {
+	if !room.Available {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": " The room has been rented"})
 		return
 	}
@@ -213,18 +214,26 @@ func TerminateLease(c *gin.Context) {
 
 	// 查询相关 relationship 关系表
 	var relationship store.Relationship
-	if err := store.GetDB().
-		Where("user_id = ? AND room_id = ?", user.ID, request.RoomID).
-		Find(&relationship).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Rental relationship not found"})
+	tx := store.GetDB().Where("user_id = ? AND room_id = ?", user.ID, request.RoomID).Find(&relationship)
+	if err := tx.Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	if tx.RowsAffected == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "relationship not found"})
 		return
 	}
 
 	// 更新管理员房间数量 -1
-	// TODO: 这个业务需要重新设计顺序, 逻辑有问题
+	// TODO: 这个业务需要重新设计删除顺序, 逻辑有问题
 	var admin store.User
-	if err := store.GetDB().Find(&admin, relationship.AdminID).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Admin not found"})
+	tx = store.GetDB().Where("id = ?", relationship.AdminID).Find(&admin)
+	if err := tx.Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	if tx.RowsAffected == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Admin not found"})
 		return
 	}
 	if admin.ManagedRooms > 0 {
@@ -249,8 +258,8 @@ func TerminateLease(c *gin.Context) {
 		Paid:   false,
 		Name:   fmt.Sprintf("%s退租账单", room.Name),
 	}
-	if err := store.GetDB().Save(&billing); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to create the bill"})
+	if err := store.GetDB().Save(&billing).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": errors.Wrapf(err, "failed to create the bill")})
 		return
 	}
 
@@ -259,7 +268,8 @@ func TerminateLease(c *gin.Context) {
 		ID:               relationship.OrderID,
 		RemainingBiilNum: 0,
 	}
-	if err := store.GetDB().Save(&order); err != nil {
+
+	if err := store.GetDB().Save(&order).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to set the order %q to invalid", relationship.OrderID)})
 		return
 	}
@@ -269,8 +279,10 @@ func TerminateLease(c *gin.Context) {
 		Type:    store.WorkOrderTypeTerminateLease,
 		Status:  store.WorkOrderStatusPending,
 		AdminID: relationship.AdminID,
+		UserID:  relationship.UserID,
+		RoomID:  relationship.RoomID,
 	}
-	if err := store.GetDB().Save(&workOrder); err != nil {
+	if err := store.GetDB().Save(&workOrder).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to create work order"})
 		return
 	}

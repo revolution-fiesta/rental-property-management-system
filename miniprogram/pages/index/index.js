@@ -15,6 +15,7 @@ Page({
     selectedRoomType: "全部", // 默认显示
     searchbarText: ""
   },
+  
   onLoad() {
     this.fetchProperties()
     this.animation = wx.createAnimation({
@@ -22,6 +23,7 @@ Page({
       timingFunction: "ease-in-out"
     });
   }, 
+
   toggleBottomBar() {
     if (this.data.isBottomBarVisible) {
       // 关闭动画
@@ -47,7 +49,7 @@ Page({
     const item_idx = event.currentTarget.dataset.index
     const room_obj = this.data.propertyList[item_idx]
     wx.navigateTo({
-      url: `/pages/details/details?houseName=${room_obj.Name}&rent=${room_obj.Price}&area=${room_obj.Area}&houseType=${room_obj.Type}&floor=${room_obj.Floor}&description=${room_obj.Description}&houseImage=${room_obj.Image}`,
+      url: `/pages/details/details?houseName=${room_obj.Name}&rent=${room_obj.Price}&area=${room_obj.Area}&houseType=${room_obj.Type}&floor=${room_obj.Floor}&description=${room_obj.Description}&houseImage=${room_obj.Image}&room_id=${room_obj.ID}`,
     })
   },
   fetchProperties: function () {

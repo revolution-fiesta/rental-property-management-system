@@ -49,6 +49,26 @@
   <!-- 底部操作按钮 -->
   <view class="footer">
     <button class="btn secondary" bindtap="contactLandlord">🛒 联系看房</button>
-    <button class="btn primary" bindtap="bookVisit">📅 立即签约</button>
+    <button class="btn primary" bindtap="toggleBottomBar">📅 立即签约</button>
+  </view>
+</view>
+
+<!-- 底部弹窗 -->
+<view class="bottom-bar" style="transform: translateY({{isBottomBarVisible ? '0%' : '100%'}}); opacity: {{isBottomBarVisible ? 1 : 0}};">
+  <view class="bottom-content">
+    <view style="margin-left: 145px; margin-bottom: 20px;">
+      <text>选择签约期数</text>
+    </view>
+
+    <!-- 期数选择 -->
+    <view class="quantity-selector">
+      <button class="quantity-btn" bindtap="decreaseQuantity">-</button>
+      <text class="quantity-value">{{quantity}}</text>
+      <button class="quantity-btn" bindtap="increaseQuantity">+</button>
+    </view>
+  </view>
+  <view style="display: flex; flex-direction: row;">
+    <button bind:tap="onFilterButtonCancel">取消</button>
+    <button bind:tap="onConfirm">确定</button> 
   </view>
 </view>

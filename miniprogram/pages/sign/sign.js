@@ -7,6 +7,8 @@ Page({
     width: 0,
     height: 0,
     first:true,
+    room_id: null,
+    num_terms: null
   },
   start(e) {
     if(this.data.first){
@@ -26,7 +28,11 @@ Page({
   /**
   * 生命周期函数--监听页面加载
   */
-  onLoad: function () {
+  onLoad: function (opts) {
+    this.setData({
+      room_id: opts.room_id,
+      num_terms: opts.num_terms
+    })
     this.getSystemInfo()
     this.createCanvas()
   },
@@ -78,6 +84,7 @@ Page({
       })
       return
     }
+    const this_ = this
     wx.canvasToTempFilePath({
       x: 0,
       y: 0,
@@ -98,7 +105,6 @@ Page({
           encoding: 'base64',
           success: (readRes) => {
             const base64Data = readRes.data; // 获取 Base64 数据
-  
             // 发送请求，上传图片数据
             wx.request({
               url: 'http://localhost:8080/upload-signature', // 你的服务器地址
@@ -110,12 +116,12 @@ Page({
               data: {
                 image_data: base64Data, // 图片的 Base64 编码
               },
-              success(res) {
+              success: (res) => {
                 wx.showToast({
                   title: '上传成功',
                   icon: 'success',
                 });
-                console.log(res.data)
+                this_.onSignComplete(res.data.signature_id)
               },
               fail(error) {
                 wx.showToast({
@@ -142,8 +148,51 @@ Page({
         });
       },
     });
+  },
+
+  // 签名上传成功后调用创建订单接口
+  onSignComplete(sign_id) {
+    const token = wx.getStorageSync('token')
+    if (!token) {
+      wx.showToast({
+        title: '请重新登录',
+        icon: 'error'
+      })
+      return
+    }
+    
+    wx.request({
+      url: 'http://localhost:8080/create-order',
+      method: "POST",
+      header: {
+        'Authorization': `Bearer ${token}`,
+      },
+      data: {
+        room_id: Number(this.data.room_id),
+        total_term: Number(this.data.num_terms)
+      },
+      success: (res) => {
+        
+        console.log(res.data)
+        wx.showToast({
+          title: '签约成功',
+          icon: 'success'
+        })
+        setTimeout(()=>{
+          wx.reLaunch({
+            url: '/pages/bill_list/bill_list',
+          })
+        }, 500)
+        
+      },
+      fail: (e) => { console.log(e) }
+    })
+
+    
+    console.log(sign_id)
+    
+
   }
-  
 })
 
 

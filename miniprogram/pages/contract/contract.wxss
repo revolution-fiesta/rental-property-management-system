@@ -1,0 +1,65 @@
+/* 页面基础样式 */
+.container {
+  padding: 20rpx;
+}
+
+.contract-title {
+  text-align: center;
+  margin-bottom: 20rpx;
+}
+
+.contract-heading {
+  font-size: 40rpx;
+  font-weight: bold;
+}
+
+/* 合同部分样式 */
+.contract-section {
+  margin-bottom: 30rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10rpx;
+  margin-bottom: 15rpx;
+  border: 1rpx solid #ccc;
+  border-radius: 5rpx;
+}
+
+.textarea-field {
+  width: 100%;
+  padding: 10rpx;
+  margin-bottom: 15rpx;
+  border: 1rpx solid #ccc;
+  border-radius: 5rpx;
+  height: 100rpx;
+}
+
+/* 按钮样式 */
+.buttons {
+  display: flex;
+  justify-content: center;
+}
+
+.button {
+  background-color: #007aff;
+  color: white;
+  padding: 15rpx 30rpx;
+  border-radius: 5rpx;
+  font-size: 30rpx;
+  width: 100%;
+}
+
+.underline {
+  font-weight: 600;
+
+  font-size: large;
+  text-decoration: underline;
+  padding: 2px;
+}

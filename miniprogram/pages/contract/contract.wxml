@@ -1,0 +1,65 @@
+<view class="container">
+
+  <!-- 出租人信息 -->
+  <view class="contract-section">
+    <text class="section-title">出租人（甲方）</text>
+    <input class="input-field" placeholder="请输入出租人姓名" />
+  </view>
+
+  <!-- 承租人信息 -->
+  <view class="contract-section">
+    <text class="section-title">承租人（乙方）</text>
+    <text>租房小程序</text>
+  </view>
+
+  <!-- 电话 -->
+  <view class="contract-section">
+    <text class="section-title">电话</text>
+    <input class="input-field" placeholder="请输入电话" />
+  </view>
+
+  <!-- 身份证号 -->
+  <view class="contract-section">
+    <text class="section-title">身份证号</text>
+    <input class="input-field" placeholder="请输入身份证号" />
+  </view>
+
+  <!-- 其他条款展示 -->
+  <view class="contract-section">
+    <text class="section-title">合同条款</text>
+    <text class="contract-text">
+      因乙方需要，甲方现将坐落于私有住房（店面、车库）出租给乙方使用，经甲乙双方协商一致，特立如下协议：
+      <br />
+      一、租用期限从 <text class="underline">{{startDate}}</text> 至 <text class="underline">{{endDate}}</text> ，租期 <text class="underline">{{leaseTerm}}</text> 个月，乙方只有使用权。
+      <br />
+      二、双方议定房屋租金每月人民币 <text class="underline">¥{{rentAmount}}</text> 元整，租金为 <text class="underline">1</text> 个月付一次（先付后住），续租租金提前 <text class="underline">7</text> 天交付。逾期不付，甲方有权解除合同。如乙方不付下次的租金，那甲方有权进入房屋内处理房屋内乙方所有物品。
+      <br />
+      三、租赁期间，乙方可将房屋用于居住，房屋不得转租或转借他人使用，如需改变用途或者转租，需征得甲方同意。
+      <br />
+      四、租赁期内，水、电、有线电视、物业、卫生等费用均由乙方承担，乙方预付押金 <text class="underline">¥{{depositAmount}}</text> 元整，等租赁期满，甲方和乙方结清所有费用后，多余押金退还乙方。如乙方租期未满 <text class="underline">1</text> 个月，甲方不退押金。
+      <br />
+      五、租赁期内，乙方不得擅自改变房屋原有结构及附属设施，如需改动必须征得甲方同意，由于乙方原因造成房屋及附属设施损坏的，乙方必须承担赔偿及修复责任，自然老化由甲方修复。乙方在使用水、电、煤气、家电等设施时，注意安全，若使用不当发生事故造成损失的均由乙方承担。
+      <br />
+      六、租赁期内，甲乙双方如遇特殊情况，欲收回租赁或退租，应提前 <text class="underline">1</text> 个月征求对方意见。
+      <br />
+      七、租赁期内，室内禁止电动车、电池充电、否则后果自负，如果承租人利用此房进行不正当的经营或者违法活动，出租方有权无条件的立刻收回房屋，租金和押金不退，给出租方造成损失的，要按照实际损失进行赔偿，乙方必须遵守居规民约，并按当地街道、派出所等部门有关规定，办理好相关手续、证件、否则后果自负。
+      <br />
+      八、租赁期间内，承租人是房屋的实际管理人，承租人需时刻注意防火、防盗、防触电，不做危及自身人身安全的活动。在房屋内发生的一切安全事故都由承租人来承担，与出租人无关，包括但不限于高空抛物、水电煤气等使用不当，在房屋内摔倒等给承租人及同住人造成的人身伤害，出租方都不承担任何责任。
+      <br />
+      九、退房时保持房内整洁，否则扣除 <text class="underline">500</text> 元清洁费。
+      <br />
+      十、未尽事宜、双方协商解决。
+      <br />
+      十一、本合同一式两份，甲乙双方各持一份，甲乙双方签字后立即生效，如有违约，违约方应承担相应责任。
+      <br />
+      十二、主要完好设施：空调、彩电、淋浴器、冰箱、洗衣机、微波炉、煤气灶、煤气瓶、油烟机、床、桌子、椅子、棚、家具、沙发、电饭煲，以上设施经双方交接时确认无误。
+      <br />
+    </text>
+
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="buttons">
+    <button class="button" bindtap="onSubmit">签字确认</button>
+  </view>
+</view>

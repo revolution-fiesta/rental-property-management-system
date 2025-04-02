@@ -120,12 +120,13 @@ func UpdateWorkOrder(c *gin.Context) {
 	if workOrder.Type == store.WorkOrderTypeTerminateLease && request.Status == string(store.WorkOrderStatusCompleted) {
 		// 根据房间 ID 寻找绑定关系
 		relationship := store.Relationship{}
-		// WARN: 如果查找不到会返回错误吗
-		if err := store.GetDB().Where("room_id = ?", workOrder.RoomID).Find(&relationship).Error; err != nil {
+		// TODO: 细致地错误处理
+		if tx := store.GetDB().Where("room_id = ?", workOrder.RoomID).Find(&relationship); tx.Error != nil || tx.RowsAffected == 0 {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "relationship not found"})
 			return
 		}
-		if err := store.GetDB().Delete(&relationship).Error; err != nil {
+		// WARN: 这个是软删除，不是一次性全删完
+		if err := store.GetDB().Where("id = ?", relationship.ID).Delete(&relationship).Error; err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete relationship"})
 			return
 		}

@@ -80,7 +80,7 @@ Page({
         })
         this.onShow()
       },
-      fail: () => { }
+      fail: (e) => { console.log(e)}
     })
 
   }

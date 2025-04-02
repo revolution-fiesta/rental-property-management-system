@@ -15,6 +15,4 @@ type Relationship struct {
 	DepositPrice float64 `gorm:"not null"`
 	// 记录订单 ID
 	OrderID uint `gorm:"not null"`
-	// 分配时间
-	AssignedAt string `gorm:"type:timestamp;"`
 }

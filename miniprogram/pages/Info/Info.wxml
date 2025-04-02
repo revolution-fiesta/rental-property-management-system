@@ -18,7 +18,7 @@
     <view>
         <!-- <FunctionItem style="position: relative; left: 0rpx; top: -58rpx" icon="/images/ui/star.png" text="我的收藏" targetPage="/pages/favorites/favorites"/> -->
         <FunctionItem style="position: relative; left: 0rpx; top: -58rpx" icon="/images/ui/contract.png" text="我的账单" targetPage="/pages/bill_list/bill_list" />
-        <FunctionItem style="position: relative; left: 0rpx; top: -58rpx" icon="/images/ui/settings.png" text="设置" targetPage="/pages/sign/sign" />
+        <FunctionItem style="position: relative; left: 0rpx; top: -58rpx" icon="/images/ui/settings.png" text="设置" targetPage="/pages/contract/contract" />
     </view>
     <view style="display: flex;">
       <FunctionItem style="position: relative; left: 0rpx; top: -51rpx" icon="/images/ui/admin.png" bind:tap="naviToAdminPanel" text="管理员入口" targetPage="/pages/settings/settings" />
