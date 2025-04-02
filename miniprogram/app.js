@@ -13,6 +13,28 @@ App({
     const seconds = String(date.getSeconds()).padStart(2, '0');
   
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  },
+
+  ConvertRoomType(roomType) {
+    // 定义映射关系
+    const mapping = {
+      "一室": "b1",
+      "一室一厅": "b1l1",
+      "两室一厅": "b2l1",
+    };
+    // 返回对应的中文描述，找不到则返回 "未知房型"
+    return mapping[roomType];
+  },
+  
+  ConvertRoomTypeReverse(roomTypeCode) {
+    // 定义反向映射关系
+    const reverseMapping = {
+      "b1": "一室",
+      "b1l1": "一室一厅",
+      "b2l1": "两室一厅",
+    };
+    // 返回对应的房型，找不到则返回 "未知房型"
+    return reverseMapping[roomTypeCode] || "未知房型";
   }
 })
 

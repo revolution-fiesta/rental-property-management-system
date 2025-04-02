@@ -1,3 +1,4 @@
+const app = getApp()
 // index.js
 Page({
   data: {
@@ -64,7 +65,7 @@ Page({
             Name: item.Name,
             Price: item.Price,
             Tags: item.Tags,
-            Type: convertRoomTypeReverse(item.Type),
+            Type: app.ConvertRoomTypeReverse(item.Type),
             Area: item.Area,
             Description: item.Description,
             Image: `http://localhost:8080/static/${item.ImageUrl}`
@@ -117,7 +118,7 @@ Page({
       url: 'http://localhost:8080/list-filtered-rooms',  // 替换为实际的 API 地址
       method: 'POST',
       data: {
-        "room_type": convertRoomType(this.data.selectedRoomType),
+        "room_type": app.ConvertRoomType(this.data.selectedRoomType),
         "min_price": this.data.priceMin,
         "max_price": this.data.priceMax,
         "min_area": this.data.areaMin,
@@ -161,24 +162,3 @@ Page({
     this.fetchFilteredProperties()
   },
 })
-function convertRoomType(roomType) {
-  // 定义映射关系
-  const mapping = {
-    "一室": "b1",
-    "一室一厅": "b1l1",
-    "两室一厅": "b2l1",
-  };
-  // 返回对应的中文描述，找不到则返回 "未知房型"
-  return mapping[roomType];
-}
-
-function convertRoomTypeReverse(roomTypeCode) {
-  // 定义反向映射关系
-  const reverseMapping = {
-    "b1": "一室",
-    "b1l1": "一室一厅",
-    "b2l1": "两室一厅",
-  };
-  // 返回对应的房型，找不到则返回 "未知房型"
-  return reverseMapping[roomTypeCode] || "未知房型";
-}

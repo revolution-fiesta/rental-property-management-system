@@ -23,7 +23,7 @@ Page({
     const token = wx.getStorageSync('token'); 
     wx.showToast({
       title: '支付中',
-      icon: 'none'
+      icon: 'loading'
     });
     wx.request({
       url: 'http://localhost:8080/pay-bill',  

@@ -48,7 +48,7 @@
 
   <!-- 底部操作按钮 -->
   <view class="footer">
-    <button class="btn secondary" bindtap="addToWatchlist">🛒 联系看房</button>
+    <button class="btn secondary" bindtap="contactLandlord">🛒 联系看房</button>
     <button class="btn primary" bindtap="bookVisit">📅 立即签约</button>
   </view>
 </view>

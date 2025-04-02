@@ -4,11 +4,19 @@ Page({
   data: {
     workOrderText: "",
     workOrders: [],
+    roomID: null
   },
 
   onShow(){
     this.loadWorkOrders()
   },
+
+  onLoad(opts) {
+    this.setData({
+      roomID: opts.room_id
+    })
+  },
+
 
   loadWorkOrders(){
     const token = wx.getStorageSync('token');
@@ -22,17 +30,19 @@ Page({
         // 请求成功时的回调
         console.log(res.data);
         this.setData({
-          workOrders: res.data.work_orders.map(work_order => {
+          workOrders: res.data.work_orders
+          .filter(work_order => work_order.RoomID == this.data.roomID)
+          .map(work_order => {
             return {
               Date: app.FormatDateToYYYYMMDDHHMMSS(new Date(work_order.CreatedAt)),  // 格式化 CreatedAt
               Description: work_order.Description,
               Status: work_order.Status,
               Type: work_order.Type,
-              ID: work_order.ID
+              ID: work_order.ID,
+              RoomID: work_order.RoomID
             };
           })
         });
-        console.log(this.data.workOrders)
       },
       fail(error) {
         // 请求失败时的回调
@@ -60,7 +70,7 @@ Page({
         'Authorization': `Bearer ${token}`,
       },
       data: {
-        "room_id": 1,
+        "room_id": this.data.roomID,
         "description": this.data.workOrderText.trim()
       },
       success: (res) => {

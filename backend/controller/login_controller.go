@@ -45,6 +45,7 @@ func Login(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+
 		// 如果该 OpenID 没有关联的账号，则创建新账号
 		if tx := store.GetDB().Where("open_id = ?", openID).Find(&user); tx.RowsAffected == 0 {
 			if err := store.CreateUser("", "", "", string(store.UserRoleMember), openID); err != nil {
@@ -123,6 +124,10 @@ func getWechatOpenID(code string) (string, error) {
 	var oauthResp WechatOAuthResponse
 	if err := json.Unmarshal(body, &oauthResp); err != nil {
 		return "", err
+	}
+
+	if oauthResp.OpenID == "" {
+		return "", errors.New("failed to get OpenID")
 	}
 
 	return oauthResp.OpenID, nil

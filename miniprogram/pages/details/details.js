@@ -24,17 +24,11 @@ Page({
     });
   },
 
-  callAgent() {
-    wx.makePhoneCall({
-      phoneNumber: '123456789' // 这里换成实际管家电话
-    });
-  },
-
   addToFavorites() {
     wx.showToast({ title: '已加入收藏', icon: 'success' });
   },
 
   contactLandlord() {
-    wx.showToast({ title: '已联系房东', icon: 'success' });
+    wx.showToast({ title: '已复制管家电话', icon: 'success' });
   }
 });

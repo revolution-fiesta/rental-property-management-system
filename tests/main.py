@@ -50,11 +50,20 @@ def GetRooms():
   print(resp)
   if resp.status_code == 200:
     print(resp.json())
+    
+def ListOwnedRooms():
+  resp = requests.get(f"{backend_url}/list-owned-rooms", headers=headers)
+  print(resp)
+  if resp.status_code == 200:
+    print(resp.json())
+
 
 if __name__ == "__main__":
   # Register()
   Login()
   # GetRooms()
   # RegisterAdmin()
-  CreateWorkOrders()
+  # CreateWorkOrders()
+  ListOwnedRooms()
+  
   
