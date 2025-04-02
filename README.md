@@ -33,5 +33,6 @@
 
 ### Mock Data
 
-1. Login with WeChat, set the role of the user to admin in the database manually
-2. Insert house data into the database.
+1. Setup the app_secret and the app_id in the config.yaml
+2. Login with WeChat, set the role of the user to admin in the database manually
+3. Insert house data into the database.
