@@ -33,6 +33,7 @@ func ConfigRouter(r *gin.Engine) {
 	authRoutes.GET("/list-user-workorders", ListUserWorkOrders)
 	authRoutes.POST("/create-work-order", CreateWorkOrder)
 	authRoutes.GET("/list-owned-rooms", ListOwnedRooms)
+	authRoutes.POST("/upload-signature", UploadSignature)
 
 	// 需要管理员权限的路由
 	adminRoutes := authRoutes.Group("/", middleware.AdminMiddleware())

@@ -1,0 +1,7 @@
+{
+  "usingComponents": {},
+  "pageOrientation": "landscape",
+  "navigationBarBackgroundColor":"#3fa89a",
+  "navigationBarTextStyle":"white",
+  "navigationBarTitleText":"手写签名"
+}

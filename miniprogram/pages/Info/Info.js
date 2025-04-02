@@ -77,13 +77,13 @@ Page({
     };
     return mapping[userType] || "未知身份";
   },
+
   // 没法自动获取昵称，需要用户手动填写
   handleChooseAvatar(e) {
     // TODO: 这里应该根据后端的信息来设置头像
     wx.setStorageSync('avatar_url', e.detail.avatarUrl)
     // 然后登录
     this.handleLogin()
-  }
-
+  },
 });
 

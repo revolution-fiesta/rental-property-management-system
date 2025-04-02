@@ -122,5 +122,6 @@ func Migrate() error {
 		&Relationship{},
 		&WorkOrder{},
 		&Billing{},
+		&Signature{},
 	)
 }

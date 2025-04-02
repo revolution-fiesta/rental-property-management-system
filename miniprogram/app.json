@@ -8,7 +8,8 @@
     "pages/work_order/work_order",
     "pages/bill_list/bill_list",
     "pages/admin_page/admin_page",
-    "pages/ticket_list/ticket_list"
+    "pages/ticket_list/ticket_list",
+    "pages/sign/sign"
   ],
   "window": {
     "backgroundTextStyle": "light",

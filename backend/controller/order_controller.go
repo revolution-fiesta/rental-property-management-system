@@ -221,6 +221,7 @@ func TerminateLease(c *gin.Context) {
 	}
 
 	// 更新管理员房间数量 -1
+	// TODO: 这个业务需要重新设计顺序, 逻辑有问题
 	var admin store.User
 	if err := store.GetDB().Find(&admin, relationship.AdminID).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Admin not found"})

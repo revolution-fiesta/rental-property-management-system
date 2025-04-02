@@ -1,0 +1,5 @@
+<canvas type="2d" id="canvas" bindtouchmove="move" bindtouchstart="start"  binderror="error" style="width:{{width}}px;height:{{height}}px;"></canvas>
+<view class="btn">
+  <button bindtap="clearClick">重签</button>
+  <button bindtap="saveClick">完成签名</button>
+</view>
