@@ -17,7 +17,6 @@ Page({
     })
   },
 
-
   loadWorkOrders(){
     const token = wx.getStorageSync('token');
     wx.request({
@@ -70,12 +69,12 @@ Page({
         'Authorization': `Bearer ${token}`,
       },
       data: {
-        "room_id": this.data.roomID,
+        "room_id": Number(this.data.roomID),
         "description": this.data.workOrderText.trim()
       },
       success: (res) => {
         // 请求成功时的回调
-        console.log(res.data);
+        this.setData({workOrderText: ""})
         wx.showToast({ title: "工单提交成功", icon: "success" });
         this.onShow()
       },

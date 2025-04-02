@@ -46,6 +46,7 @@ func CreateWorkOrder(c *gin.Context) {
 		Type:        store.WorkOrderTypeGeneral,
 		Description: request.Description,
 		Status:      store.WorkOrderStatusPending,
+		AdminID:     relationship.AdminID,
 	}
 	if err := store.GetDB().Create(&workOrder).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create work order"})

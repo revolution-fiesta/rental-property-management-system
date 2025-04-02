@@ -1,7 +1,8 @@
 const app = getApp()
 Page({
   data: {
-    tempPassword: "1234-5678",
+    password: "******",
+    expires_at: '',
     roomList: [], // 存储房间列表
     currentRoom: null, // 当前选择的房间
   },
@@ -34,6 +35,11 @@ Page({
         this.setData({
           currentRoom: this.data.roomList.length > 0 ? this.data.roomList[0] : null,
         })
+        this.getPassword((passwd, exp) => {
+          this.setData({
+            expires_at: exp,
+          })
+        })
       },
       fail(error) {
         console.log('请求失败', error);
@@ -49,14 +55,77 @@ Page({
   },
 
   changePassword() {
-    const newPassword = Math.random().toString().slice(2, 10);
-    this.setData({
-      tempPassword: newPassword,
-    });
-    wx.showToast({
-      title: "密码已更新",
-      icon: "success",
-    });
+    const token = wx.getStorageSync('token')
+    if (!token) {
+      wx.showToast({
+        title: '请重新登录',
+        icon: 'error'
+      })
+      return
+    }
+    wx.request({
+      url: 'http://localhost:8080/change-room-password',
+      method: 'POST',
+      header: {
+        'Authorization': `Bearer ${token}`,
+      },
+      data: {
+        room_id: Number(this.data.currentRoom.ID),
+        new_password: ""
+      },
+      success: (res) => {
+        this.onShow()
+        if (res.statusCode == 200) {
+          wx.showToast({
+            title: "已生成新密码",
+            icon: "success",
+          });
+        }
+      },
+      fail: (err) => {
+        console.log(err)
+      }
+    })
+  },
+
+  showPassword() {
+    this.getPassword((passwd, exp) => {
+      this.setData({password: passwd})
+      setTimeout(()=> {
+        this.setData({password: "******"})
+      }, 1000)
+    })
+  },
+
+  //  向后端请求数据并执行回调
+  getPassword(callback) {
+    const token = wx.getStorageSync('token')
+    if (token == null) {
+      wx.showToast({
+        title: '请重新登录',
+        icon: 'error'
+      })
+    }
+    wx.request({
+      url: 'http://localhost:8080/get-password',
+      method: 'POST',
+      header: {
+        'Authorization': `Bearer ${token}`,
+      },
+      data: {
+        room_id: this.data.currentRoom.ID
+      },
+      success: (res)=>{
+        if (res.data.password == null) {
+          console.log("failed to get password")
+          return
+        }
+        callback( res.data.password.Password,  app.FormatDateToYYYYMMDDHHMMSS(new Date(res.data.password.ExpiresAt)))
+      },
+      fail: (err)=> {
+        console.log(err)
+      }
+    })
   },
 
   goToWorkOrder() {

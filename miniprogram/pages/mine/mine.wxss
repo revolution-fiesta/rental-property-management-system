@@ -9,44 +9,42 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 20px;
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .picker-label {
-  
   font-size: 16px;
   font-weight: bold;
 }
 
 .picker {
-  
   flex: 1;
-  padding: 10px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
   font-size: 16px;
 }
 
 .card {
   background: #fff;
-  padding: 15px;
-  border-radius: 10px;
+  padding: 20px;
+  border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .room-title {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   display: block;
 }
 
 .room-details text {
   display: block;
   font-size: 16px;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 .password-section {
@@ -54,39 +52,41 @@
 }
 
 .password-label {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
 }
 
 .password-value {
-  font-size: 18px;
+  font-size: 20px;
   color: #ff5722;
   font-weight: bold;
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .refresh-btn {
   background-color: #ff5722;
   color: white;
-  padding: 10px;
-  border-radius: 5px;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 10px;
 }
 
-.button-container {
-  display: flex;
-  justify-content: space-between;
+.button-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 15px;
-  margin-top: 20px;
+  margin-top: 25px;
 }
 
-.primary-btn {
+.grid-btn {
   background-color: #007aff;
   color: white;
-  padding: 12px;
-  border-radius: 8px;
+  padding: 14px;
+  border-radius: 10px;
   font-size: 16px;
+  text-align: center;
   width: 100%;
 }

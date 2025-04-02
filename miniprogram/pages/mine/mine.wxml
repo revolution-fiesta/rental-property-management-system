@@ -1,12 +1,15 @@
 <view class="container">
   <!-- 选择房间 -->
   <picker mode="selector" range="{{roomList}}" range-key="Name" bindchange="switchRoom">
-    <view class="picker">当前房间：{{currentRoom.Name || '请选择房间'}}</view>
+    <view class="picker-wrapper">
+      <text class="picker-label">选择房间：</text>
+      <view class="picker">{{currentRoom.Name || '请选择房间'}}</view>
+    </view>
   </picker>
 
   <!-- 房间信息卡片 -->
-  <view class="card" wx:if="{{currentRoom.Name}}">
-    <text class="room-title">{{currentRoom.name}}</text>
+  <view class="card room-card" wx:if="{{currentRoom.Name}}">
+    <text class="room-title">{{currentRoom.Name}}</text>
     <view class="room-details">
       <text>户型：{{currentRoom.FormatType}}</text>
       <text>楼层：{{currentRoom.Floor}}</text>
@@ -16,19 +19,16 @@
 
   <!-- 临时密码 -->
   <view class="card password-section" wx:if="{{currentRoom.Name}}">
-    <text class="password-label">临时密码</text>
-    <text class="password-value">{{tempPassword}}</text>
-    <button class="refresh-btn" bindtap="changePassword">更改密码</button>
+    <text class="password-label">房门密码</text>
+    <text class="password-label" style="color: gray; font-size: 15px;">有效期至 {{expires_at}}</text>
+
+    <text class="password-value">{{password}}</text>
+    <button class="refresh-btn" bindtap="showPassword">查看密码</button>
+    <button class="refresh-btn" bindtap="changePassword">生成新密码</button>
   </view>
 
-  <view style="display: flex; flex-direction: row; gap: 170px" wx:if="{{currentRoom.Name}}">
-    <!-- 操作按钮 -->
-    <view class="button-group">
-      <button class="primary-btn" bindtap="goToWorkOrder">我要报修</button>
-    </view>
-    <!-- 退租申请 -->
-    <view class="button-group">
-      <button class="primary-btn" bindtap="terminateLease">申请退租</button>
-    </view>
+  <view class="button-grid" wx:if="{{currentRoom.Name}}">
+    <button class="grid-btn" bindtap="goToWorkOrder">我要报修</button>
+    <button class="grid-btn" bindtap="terminateLease">申请退租</button>
   </view>
 </view>
