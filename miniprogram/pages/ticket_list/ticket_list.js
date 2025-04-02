@@ -3,14 +3,14 @@ const app = getApp()
 Page({
   data: {
     workOrders: [],
-    roomNames:[]
+    roomNames: []
   },
 
   onShow() {
     this.loadWorkOrders()
   },
 
-  loadWorkOrders(){
+  loadWorkOrders() {
     const token = wx.getStorageSync('token');
     wx.request({
       url: 'http://localhost:8080/list-admin-workorders',
@@ -35,7 +35,7 @@ Page({
             success: (roomRes) => {
               let arr = this.data.roomNames
               arr.push(roomRes.data.room.Name)
-              this.setData({roomNames: arr})
+              this.setData({ roomNames: arr })
               this.setData({
                 workOrders: res.data.work_orders
                   .map((work_order, index) => ({
@@ -49,7 +49,7 @@ Page({
                   .sort((a, b) => new Date(b.Date) - new Date(a.Date)) // 按时间降序排序（最新的在前）
               });
             },
-            fail: () => {}
+            fail: () => { }
           })
         }
       },
@@ -80,7 +80,7 @@ Page({
         })
         this.onShow()
       },
-      fail: () => {}
+      fail: () => { }
     })
 
   }
