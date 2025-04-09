@@ -39,7 +39,6 @@ func ConfigRouter(r *gin.Engine) {
 	adminRoutes := authRoutes.Group("/", middleware.AdminMiddleware())
 	adminRoutes.POST("/register-admin", RegisterAdmin)
 	adminRoutes.POST("/update-room", UpdateRoomInfo)
-	adminRoutes.POST("/admin-register", RegisterAdmin)
 	adminRoutes.GET("/list-admin-workorders", ListAdminWorkOrders)
 	adminRoutes.POST("/update-workorder", UpdateWorkOrder)
 }
