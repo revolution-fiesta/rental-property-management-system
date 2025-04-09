@@ -11,6 +11,7 @@ import (
 	"rental-property-management-system/backend/controller"
 	"rental-property-management-system/backend/runner"
 	"rental-property-management-system/backend/utils"
+	"runtime"
 
 	"rental-property-management-system/backend/store"
 	"syscall"
@@ -20,6 +21,9 @@ import (
 
 // WARN: 超级大 bug: Find 函数没有找到结果的时候不会返回错误, 需要用 affected_rows 判断
 func main() {
+	// 用于性能测试
+	runtime.GOMAXPROCS(8)
+
 	var err error
 	// 读取配置文件
 	if err = config.LoadConfig(); err != nil {

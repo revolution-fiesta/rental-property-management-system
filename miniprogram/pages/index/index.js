@@ -136,7 +136,7 @@ Page({
             Name: item.Name,
             Price: item.Price,
             Tags: item.Tags,
-            Type: convertRoomTypeReverse(item.Type),
+            Type: app.ConvertRoomTypeReverse(item.Type),
             Area: item.Area,
             Description: item.Description,
             Image: `http://localhost:8080/static/${item.ImageUrl}`

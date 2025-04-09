@@ -9,6 +9,7 @@ Page({
 
   onShow() {
     this.loadCurrentRoom();
+    console.log(this.data)
   },
 
   loadCurrentRoom() {

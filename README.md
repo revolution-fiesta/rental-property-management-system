@@ -36,3 +36,9 @@
 1. Setup the app_secret and the app_id in the config.yaml
 2. Login with WeChat, set the role of the user to admin in the database manually
 3. Insert house data into the database.
+
+### Locust API Test
+
+```shell
+  locust.exe -f .\api_perf.py --host http://localhost:8080
+```
