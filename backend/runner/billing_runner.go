@@ -6,28 +6,33 @@ import (
 	"log/slog"
 	"rental-property-management-system/backend/store"
 	"rental-property-management-system/backend/utils"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
 )
 
-// WARN: 这个应该跟接口中更新账单的函数进行同步,
-// 用 sync.Mutex 保护一下
+var billingMu sync.Mutex
+
 func StartBillingRunner(ctx context.Context) {
 	ticker := time.NewTicker(10 * time.Second)
 	go func() {
 		for {
 			select {
-			// 定期检查数据库
 			case <-ticker.C:
 				slog.Info(fmt.Sprintf("Billing Runner scans orders in every %d seconds", 10))
+
+				billingMu.Lock()
 				if err := generateBilling(); err != nil {
 					slog.Warn(err.Error())
+					billingMu.Unlock()
 					continue
 				}
-			// 根据外部 context 进行同步
+				billingMu.Unlock()
+
 			case <-ctx.Done():
 				slog.Info("billing runner exits")
+				return
 			}
 		}
 	}()
